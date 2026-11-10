@@ -7,6 +7,8 @@
     "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint",
+    "typecheck": "tsc --noEmit",
+    "typecheck:tests": "tsc --noEmit --project tsconfig.test.json",
     "test": "playwright test",
     "test:e2e": "playwright test",
     "test:listing": "node --test components/listing-tool/original/lib/*.test.mjs components/listing-tool/original/scripts/*.cjs tests/listing-tool-routes.test.mjs",

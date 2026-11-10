@@ -127,6 +127,8 @@ Admin-only usage controls still enforce actual provider input/output limits acro
 
 Run `npx playwright test tests/browser/subscriptions.spec.ts` to check user plan visibility, offers, hidden internal usage, verified test checkout, persistence, admin assignment and mobile layouts. Payment calls and the checkout widget are mocked against temporary test data; no real payment or AI call is made.
 
+Production builds type-check application code and exclude `tests/`, so Vercel can build this repository without a sibling backend checkout. Run `npm run typecheck` for application types. Browser tests have a separate configuration: run `npm run typecheck:tests` with the backend checked out and installed at `../backend`, which supplies the test server, fixtures and image/PDF test helpers.
+
 ## Inventory Admin integration
 
 Open `/tools/inventory-admin` from the seller sidebar. All four tools are now available. Inventory Admin includes the original category/product editors, design uploads and gallery, RAW and PRINTED stock, low-stock PDF reports, purchase orders and receipt verification, printing jobs, exact QR/barcode batches, packed-item reports and inventory-local staff creation. The existing Margyn sidebar stays in place, with white/indigo controls and an inventory section selector on mobile.
