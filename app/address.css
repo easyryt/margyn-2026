@@ -1,0 +1,98 @@
+.address-location {
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+  padding: 17px;
+  border: 1px solid #dce5f1;
+  border-radius: 10px;
+  background: #f8fafc;
+}
+.address-location-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  color: #405478;
+  font-size: 11px;
+  font-weight: 600;
+}
+.address-location-heading > span:last-child {
+  color: #0f766e;
+  background: #e6f2ef;
+  border-radius: 5px;
+  padding: 3px 9px;
+  font-size: 10px;
+}
+.address-location-fields {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr) minmax(96px, 0.65fr);
+  gap: 13px;
+  min-width: 0;
+}
+.address-location-fields > label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+.address-location .address-location-fields input,
+.address-location .address-location-fields select {
+  width: 100%;
+  min-width: 0;
+  height: 45px;
+  padding: 10px 11px;
+  border: 1px solid #dce4f1;
+  border-radius: 7px;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.5;
+  color: #405478;
+  background-color: #fff;
+}
+.address-location-fields select {
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+.address-location-fields input::placeholder {
+  color: #8d9ab0;
+  font-size: 12px;
+}
+.address-location :is(input, select):focus-visible {
+  outline: 3px solid #e3e8ff;
+  outline-offset: 2px;
+  border-color: #6b7bc5;
+}
+.address-location-footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 7px 15px;
+  color: #7b8ba3;
+  font-size: 10px;
+  line-height: 1.7;
+}
+.address-location-footer > a {
+  color: #71829e;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.address-location-footer > a:hover {
+  color: #4054bd;
+}
+@media (max-width: 650px) {
+  .address-location-fields {
+    grid-template-columns: minmax(0, 1fr) minmax(100px, 0.7fr);
+  }
+  .address-location-fields > label:first-child {
+    grid-column: 1/-1;
+  }
+}
+@media (max-width: 420px) {
+  .address-location {
+    padding: 14px;
+  }
+  .address-location-fields {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14px;
+  }
+}

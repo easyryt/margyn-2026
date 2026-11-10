@@ -1,0 +1,9 @@
+# Promotional banner artwork
+
+Mode: built-in ImageGen, generate mode, transparent background.
+
+Saved asset: public/images/margyn-custom-packaging.png
+
+Final prompt:
+
+Use case: product-mockup. Asset type: transparent photographic packaging cutout for the right half of a premium Margyn ecommerce promotional banner. Create a realistic studio product arrangement of branded packaging: one large kraft corrugated carton at the rear, one smaller wide kraft box in front, a slim upright kraft box on the left, three stacked kraft padded mailers in the front left, a white stand-up courier pouch on the right, one roll of kraft packing tape and one small roll of translucent packing tape at the front right, and a short white bubble-wrap roll tucked at the far right. Print the exact word "MARGYN" in elegant dark forest-green sans-serif uppercase on the main box, small box, mailers and white pouch, with restrained large organic forest-green shapes at some package corners. This is a new Margyn brand composition inspired by the idea of custom packaging, not any other company's branding. Three-quarter frontal product photography, all objects on one grounded plane, realistic kraft-paper fibers, clean packaging folds, soft studio highlights, natural contact shadows. Wide compact pyramid composition, landscape 3:2 framing, all products fully visible and grouped with a little breathing room, no cropping. The backdrop must be truly transparent with alpha, with no wall, scene, solid color backdrop, colored floor, rectangle or checkerboard pixels. It will be placed on dark forest green in a website. No UI, buttons, badges, people, slogans, watermarks or text except the exact brand MARGYN. Avoid the word PACKI, bright orange accents, excessive logos, floating objects, illustration and fake vector art.

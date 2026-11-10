@@ -1,0 +1,31 @@
+.inventory-workspace {
+ --color-blue-50:#f1f3fc; --color-blue-100:#e7ecfc; --color-blue-200:#d3dcf7; --color-blue-300:#adbee9;
+ --color-blue-400:#8097da; --color-blue-500:#5b70ca; --color-blue-600:#4054bd; --color-blue-700:#33449c; --color-blue-800:#2b397f;
+ --color-indigo-50:#f1f3fc; --color-indigo-100:#e7ecfc; --color-indigo-200:#d3dcf7; --color-indigo-500:#5b70ca; --color-indigo-600:#4054bd; --color-indigo-700:#33449c;
+ --color-orange-50:#f3f1fa; --color-orange-100:#eae5f7; --color-orange-500:#8065b3; --color-orange-600:#6c519d; --color-orange-700:#594184;
+ --color-amber-50:#f3f1fa; --color-amber-100:#eae5f7; --color-amber-200:#d4c8ee; --color-amber-400:#9c89c4; --color-amber-500:#8065b3; --color-amber-600:#6c519d; --color-amber-700:#594184;
+ min-width:0; width:100%; padding:0 30px 32px; color:#25314b; font-size:14px;
+}
+.inventory-toolbar { padding:19px 0; border-bottom:1px solid #e6eaf2; margin-bottom:24px; }
+.inventory-toolbar nav { display:flex; flex-wrap:wrap; gap:5px; }
+.inventory-toolbar nav a { display:inline-flex; align-items:center; gap:6px; padding:10px 11px; border:1px solid transparent; border-radius:9px; font-size:11px; font-weight:600; color:#71809b; }
+.inventory-toolbar nav a:hover { color:#4054bd; background:#edf1fa; }
+.inventory-toolbar nav a[aria-current="page"] { color:#4054bd; background:#fff; border-color:#dfe5f3; box-shadow:0 2px 5px #23396b07; }
+.inventory-mobile-section { display:none; }
+.inventory-page-content { min-width:0; }
+.inventory-page-content button { background:revert-layer; border:revert-layer; color:revert-layer; font-size:revert-layer; font-weight:revert-layer; line-height:revert-layer; }
+.inventory-page-content a { color:revert-layer; text-decoration:revert-layer; }
+.inventory-page-content :is(h1,h2,h3,p) { margin:revert-layer; }
+.inventory-workspace h1 { font-size:25px; letter-spacing:-.6px; }
+.inventory-workspace p { line-height:1.6; }
+.inventory-workspace :is(input,select,textarea) { font-size:13px; accent-color:#4054bd; }
+.inventory-workspace :is(button,a,input,select,textarea):focus-visible { outline:3px solid #a4b3ec; outline-offset:3px; }
+.inventory-workspace .overflow-x-auto { max-width:100%; }
+@media(max-width:760px) {
+ .inventory-workspace { padding:0 16px 24px; }
+ .inventory-toolbar { padding:16px 0; margin-bottom:20px; }
+ .inventory-toolbar nav { display:none; }
+ .inventory-mobile-section { display:grid; gap:7px; color:#71809b; font-size:10px; font-weight:600; }
+ .inventory-mobile-section select { width:100%; padding:11px 12px; background:#fff; border:1px solid #dfe5f3; color:#4054bd; border-radius:9px; font-weight:600; }
+ .inventory-workspace h1 { font-size:22px; }
+}
