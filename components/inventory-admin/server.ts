@@ -12,6 +12,6 @@ export async function inventoryFetch(input: RequestInfo | URL, options: RequestI
   const headers = new Headers(options.headers);
   headers.delete("Authorization");
   headers.set("Cookie", (await requestCookies()).toString());
-  const backend = (process.env.BACKEND_URL || "http://127.0.0.1:4000").replace(/\/$/, "");
+  const backend = (process.env.BACKEND_URL || "https://margyn-backend.onrender.com").replace(/\/$/, "");
   return globalThis.fetch(backend + input, { ...options, headers, cache: "no-store" });
 }

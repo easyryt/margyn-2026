@@ -11,7 +11,7 @@ import type {
 } from "./types";
 // Frontend data access only. Business logic and credentials live in the separate Express project.
 async function apiGet<T>(path: string): Promise<T> {
-  const origin = (process.env.BACKEND_URL || "http://127.0.0.1:4000").replace(
+  const origin = (process.env.BACKEND_URL || "https://margyn-backend.onrender.com").replace(
     /\/$/,
     "",
   );
