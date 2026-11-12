@@ -4,13 +4,21 @@
  --color-indigo-50:#f1f3fc; --color-indigo-100:#e7ecfc; --color-indigo-200:#d3dcf7; --color-indigo-500:#5b70ca; --color-indigo-600:#4054bd; --color-indigo-700:#33449c;
  --color-orange-50:#f3f1fa; --color-orange-100:#eae5f7; --color-orange-500:#8065b3; --color-orange-600:#6c519d; --color-orange-700:#594184;
  --color-amber-50:#f3f1fa; --color-amber-100:#eae5f7; --color-amber-200:#d4c8ee; --color-amber-400:#9c89c4; --color-amber-500:#8065b3; --color-amber-600:#6c519d; --color-amber-700:#594184;
- min-width:0; width:100%; padding:0 30px 32px; color:#25314b; font-size:14px;
+ min-width:0; width:100%; color:#25314b; font-size:14px;
 }
-.inventory-toolbar { padding:19px 0; border-bottom:1px solid #e6eaf2; margin-bottom:24px; }
-.inventory-toolbar nav { display:flex; flex-wrap:wrap; gap:5px; }
-.inventory-toolbar nav a { display:inline-flex; align-items:center; gap:6px; padding:10px 11px; border:1px solid transparent; border-radius:9px; font-size:11px; font-weight:600; color:#71809b; }
+.inventory-toolbar { padding:0 0 14px; border-bottom:1px solid #e1e6ef; margin-bottom:24px; }
+.inventory-toolbar nav { display:flex; flex-wrap:wrap; align-items:center; gap:6px; }
+.inventory-toolbar nav a {
+  display:inline-flex; align-items:center; gap:8px; min-height:44px;
+  padding:8px 14px; border:1px solid transparent; border-radius:9px;
+  font-size:13px; font-weight:650; color:#4e5d77;
+}
 .inventory-toolbar nav a:hover { color:#4054bd; background:#edf1fa; }
-.inventory-toolbar nav a[aria-current="page"] { color:#4054bd; background:#fff; border-color:#dfe5f3; box-shadow:0 2px 5px #23396b07; }
+.inventory-toolbar nav a[aria-current="page"] { color:#33449c; background:#e8ecfb; border-color:#d7dff8; }
+.inventory-toolbar select {
+  min-height:44px; padding:8px 10px; border:1px solid #dbe3f0; border-radius:9px;
+  background:white; color:#33449c; font-weight:650;
+}
 .inventory-mobile-section { display:none; }
 .inventory-page-content { min-width:0; }
 .inventory-page-content button { background:revert-layer; border:revert-layer; color:revert-layer; font-size:revert-layer; font-weight:revert-layer; line-height:revert-layer; }
@@ -22,10 +30,64 @@
 .inventory-workspace :is(button,a,input,select,textarea):focus-visible { outline:3px solid #a4b3ec; outline-offset:3px; }
 .inventory-workspace .overflow-x-auto { max-width:100%; }
 @media(max-width:760px) {
- .inventory-workspace { padding:0 16px 24px; }
- .inventory-toolbar { padding:16px 0; margin-bottom:20px; }
+ .inventory-toolbar { padding-bottom:12px; margin-bottom:20px; }
  .inventory-toolbar nav { display:none; }
- .inventory-mobile-section { display:grid; gap:7px; color:#71809b; font-size:10px; font-weight:600; }
- .inventory-mobile-section select { width:100%; padding:11px 12px; background:#fff; border:1px solid #dfe5f3; color:#4054bd; border-radius:9px; font-weight:600; }
+ .inventory-mobile-section { display:grid; gap:6px; color:#4e5d77; font-size:12px; font-weight:650; }
+ .inventory-mobile-section select { width:100%; }
  .inventory-workspace h1 { font-size:22px; }
+}
+
+.inventory-home { display:grid; gap:24px; container-type:inline-size; }
+.inventory-page-content .inventory-home h1 {
+  margin:0; color:#172440; font-size:clamp(26px, 3vw, 34px); font-weight:750; line-height:1.15;
+}
+.inventory-page-content .inventory-home h2 { margin:0; color:#172440; font-size:16px; font-weight:700; }
+.inventory-action-grid, .inventory-home-panels { display:grid; gap:14px; }
+.inventory-action-grid { grid-template-columns:repeat(3, minmax(0, 1fr)); margin-top:12px; }
+.inventory-home-panels { grid-template-columns:repeat(2, minmax(0, 1fr)); align-items:start; }
+.inventory-page-content .inventory-action-card {
+  display:grid; grid-template-columns:auto minmax(0, 1fr) auto; align-items:start;
+  gap:12px; padding:16px 14px; border:1px solid #dbe3f3; border-radius:14px;
+  background:white; color:#172440;
+}
+.inventory-page-content .inventory-action-card:hover { background:#f1f3fc; border-color:#99a9e4; }
+.inventory-action-icon {
+  display:grid; place-items:center; width:40px; height:40px;
+  border-radius:10px; background:#e8ecfb; color:#4054bd;
+}
+.inventory-action-copy { display:grid; gap:5px; overflow-wrap:anywhere; }
+.inventory-action-copy strong { font-size:15px; font-weight:700; }
+.inventory-action-copy > span { font-size:13px; line-height:1.55; color:#53627c; }
+.inventory-action-arrow { margin-top:3px; color:#4054bd; }
+.inventory-home-panel { min-width:0; border:1px solid #e0e6f0; border-radius:13px; background:white; }
+.inventory-home-panel header {
+  display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap;
+  gap:2px 10px; min-height:53px; padding:4px 16px; border-bottom:1px solid #e8edf5;
+}
+.inventory-page-content .inventory-home-panel header a {
+  display:inline-flex; align-items:center; min-height:44px; color:#33449c; font-size:13px; font-weight:650;
+}
+.inventory-page-content .inventory-home-panel header a:hover { text-decoration:underline; }
+.inventory-page-content .inventory-panel-message { margin:0; padding:14px 16px; color:#53627c; }
+.inventory-stock-preview, .inventory-more-links { margin:0; padding:0; list-style:none; }
+.inventory-stock-preview li {
+  display:grid; grid-template-columns:minmax(0, 1fr) auto; gap:8px 16px;
+  padding:10px 16px; overflow-wrap:anywhere;
+}
+.inventory-stock-preview li + li { border-top:1px solid #e8edf5; }
+.inventory-stock-preview strong { font-size:13px; font-weight:650; }
+.inventory-stock-preview small { display:block; margin-top:2px; color:#53627c; font-size:12px; }
+.inventory-stock-quantity { text-align:right; }
+.inventory-stock-quantity strong { color:#72501b; }
+.inventory-more-links { display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:4px; padding:8px; }
+.inventory-page-content .inventory-more-links a {
+  display:flex; align-items:center; gap:8px; min-height:44px; padding:7px 8px;
+  border-radius:8px; color:#33449c; font-size:13px; font-weight:650;
+}
+.inventory-more-links svg { flex-shrink:0; }
+.inventory-page-content .inventory-more-links a:hover { background:#edf1fa; }
+
+@container (max-width:760px) {
+ .inventory-action-grid, .inventory-home-panels { grid-template-columns:1fr; }
+ .inventory-action-grid { gap:9px; }
 }

@@ -114,98 +114,97 @@ export default function AiProviderSelector({
   const profile = selected?.qualityOptions?.find(
     (option) => option.id === selection.qualityTier,
   );
+  const unavailable = selected
+    ? `${selected.label} is unavailable. Choose another provider in AI settings or contact the administrator.`
+    : "AI generation is unavailable. You can still use backgrounds and enhancement on your device.";
+
   return (
-    <fieldset
-      className="ai-provider-selector"
-      disabled={disabled || selection.loading}
-      aria-describedby={`${id}-help`}
-    >
-      <legend>
-        AI provider <span>Choose cost or quality</span>
-      </legend>
-      {selection.loading ? (
-        <p role="status">Loading providers…</p>
-      ) : (
-        <div className="ai-provider-options">
-          {selection.options.map((option) => (
-            <label
-              key={option.id}
-              className={selection.provider === option.id ? "is-selected" : ""}
-            >
-              <input
-                type="radio"
-                name={`${id}-provider`}
-                value={option.id}
-                checked={selection.provider === option.id}
-                onChange={() => selection.selectProvider(option.id)}
-                disabled={!option.available}
-              />
-              <span>
-                <strong>{option.label}</strong>
-                <small>
-                  {option.available ? "Configured" : "Not configured"}
-                </small>
-              </span>
-            </label>
-          ))}
-        </div>
-      )}
-      {selected?.available && selected.qualityOptions && (
-        <div className="ai-quality-picker">
-          <span id={`${id}-quality-label`}>Image model / quality</span>
-          <div
-            className="ai-provider-options"
-            role="radiogroup"
-            aria-labelledby={`${id}-quality-label`}
-          >
-            {selected.qualityOptions.map((option) => (
+    <div className="ai-settings">
+      <details className="workspace-details">
+        <summary>
+          AI settings
+          {selected?.available && <small>{selected.label}{profile ? ` · ${profile.label}` : ""}</small>}
+        </summary>
+        <fieldset className="ai-provider-selector" disabled={disabled || selection.loading}>
+          <legend>AI provider</legend>
+          <div className="ai-provider-options">
+            {selection.options.map((option) => (
               <label
                 key={option.id}
-                className={
-                  selection.qualityTier === option.id ? "is-selected" : ""
-                }
+                className={selection.provider === option.id ? "is-selected" : ""}
               >
                 <input
                   type="radio"
-                  name={`${id}-quality`}
+                  name={`${id}-provider`}
                   value={option.id}
-                  checked={selection.qualityTier === option.id}
-                  onChange={() => selection.selectQualityTier(option.id)}
+                  checked={selection.provider === option.id}
+                  onChange={() => selection.selectProvider(option.id)}
+                  disabled={!option.available}
                 />
                 <span>
                   <strong>{option.label}</strong>
-                  <small>{option.imageModel}</small>
+                  <small>
+                    {option.available ? "Configured" : "Not configured"}
+                  </small>
                 </span>
               </label>
             ))}
           </div>
-        </div>
+          {selected?.available && selected.qualityOptions && (
+            <div className="ai-quality-picker">
+              <span id={`${id}-quality-label`}>Image model / quality</span>
+              <div
+                className="ai-provider-options"
+                role="radiogroup"
+                aria-labelledby={`${id}-quality-label`}
+              >
+                {selected.qualityOptions.map((option) => (
+                  <label
+                    key={option.id}
+                    className={
+                      selection.qualityTier === option.id ? "is-selected" : ""
+                    }
+                  >
+                    <input
+                      type="radio"
+                      name={`${id}-quality`}
+                      value={option.id}
+                      checked={selection.qualityTier === option.id}
+                      onChange={() => selection.selectQualityTier(option.id)}
+                    />
+                    <span>
+                      <strong>{option.label}</strong>
+                      <small>{option.imageModel}</small>
+                    </span>
+                  </label>
+                ))}
+              </div>
+            </div>
+          )}
+          {selected?.available && (
+            <details className="workspace-details">
+              <summary>Model & cost details</summary>
+              <p>
+                {profile?.settingsLabel ?? selected.settingsLabel}. Analysis:{" "}
+                {selected.contentModel}. Settings apply to the next generation or
+                retry.
+              </p>
+              <p>
+                {backgroundVariants && "Backgrounds are composed locally. "}Each
+                selected view and review uses credits. Flare may cost more than
+                Mini. Model access depends on your account. No automatic
+                model/provider fallback. Pixel-perfect results are not guaranteed.
+              </p>
+            </details>
+          )}
+        </fieldset>
+      </details>
+      {!selection.ready && (
+        <p className="ai-settings-status" role="status">
+          {selection.loading ? "Loading AI settings…" : selection.error || unavailable}
+        </p>
       )}
-      <p id={`${id}-help`} className="ai-provider-help">
-        {selection.error ||
-          (selected?.available
-            ? (profile?.imageModel ?? selected.imageModel)
-            : selected
-              ? `${selected.label} is not configured yet. Choose another provider or contact the administrator.`
-              : "AI generation is not configured yet. Local backgrounds and enhancement are still available.")}
-      </p>
-      {selected?.available && (
-        <details className="workspace-details">
-          <summary>Model & cost details</summary>
-          <p>
-            {profile?.settingsLabel ?? selected.settingsLabel}. Analysis:{" "}
-            {selected.contentModel}. Settings apply to the next generation or
-            retry.
-          </p>
-          <p>
-            {backgroundVariants && "Backgrounds are composed locally. "}Each
-            selected view and review uses credits. Flare may cost more than
-            Mini. Model access depends on your account. No automatic
-            model/provider fallback. Pixel-perfect results are not guaranteed.
-          </p>
-        </details>
-      )}
-      {selection.qualityTier === "quality" && (
+      {selection.ready && selection.qualityTier === "quality" && (
         <p className="ai-cost-warning" role="status">
           {selection.provider === "openai"
             ? "Flare · low quality"
@@ -213,6 +212,6 @@ export default function AiProviderSelector({
           . Generation and retries use API credits.
         </p>
       )}
-    </fieldset>
+    </div>
   );
 }

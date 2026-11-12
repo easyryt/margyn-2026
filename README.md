@@ -19,7 +19,7 @@ npm install
 npm run dev
 ```
 
-The API runs at https://margyn-backend.onrender.com. Health check: https://margyn-backend.onrender.com/api/health.
+The API runs at http://127.0.0.1:4000. Health check: http://127.0.0.1:4000/api/health.
 
 ## Start the frontend in another terminal
 
@@ -38,7 +38,7 @@ The dev and build scripts use Webpack with Tailwind's PostCSS plugin. This also 
 Frontend `.env.local` contains only:
 
 ```text
-BACKEND_URL=https://margyn-backend.onrender.com
+BACKEND_URL=http://127.0.0.1:4000
 ```
 
 MongoDB, ImageKit, OTP, shipping and API settings are in the sibling backend’s `.env`. Both environment files remain private and ignored by their project configurations. On a fresh setup, copy the corresponding `.env.example` files and supply the server credentials.

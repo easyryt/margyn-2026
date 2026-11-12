@@ -10,6 +10,8 @@ import CharmDesign from "@/components/listing-tool/original/app/charms/[designNu
 import GeneralDetails from "@/components/listing-tool/original/app/general-products/[productId]/page";
 import GeneralCategory from "@/components/listing-tool/original/app/general-products/category/[category]/page";
 import ModelProducts from "@/components/listing-tool/original/app/products/model/[model]/page";
+import ListingAnalytics from "@/components/listing-tool/original/app/page";
+import ProductImport from "@/components/listing-tool/original/components/ProductImport";
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 type Query = { [key: string]: string | string[] | undefined };
@@ -20,6 +22,16 @@ export default async function ListingSection({ params, searchParams }: { params:
   if (!validListingSegments(path)) notFound();
   await requireToolUser(listingReturnPath(path, await searchParams));
   if (path.length === 1) {
+    if (path[0] === "analytics") return <ListingAnalytics />;
+    if (path[0] === "import") return (
+      <main className="listing-import-page">
+        <header className="listing-home-heading">
+          <h1>Import Excel</h1>
+          <p>Add phone cover listings and design names from a spreadsheet.</p>
+        </header>
+        <ProductImport />
+      </main>
+    );
     if (path[0] === "products") return <Products />;
     if (path[0] === "create-product") return <CreateProduct />;
     if (path[0] === "general-products") return <GeneralProducts searchParams={searchParams} />;

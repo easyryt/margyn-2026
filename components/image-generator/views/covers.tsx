@@ -383,15 +383,9 @@ export default function Home() {
   };
 
   return (
-    <main className="workspace-page">
+    <main className="workspace-page cover-workspace">
       <div className="workspace-heading">
-        <div>
-          <h1>Image Generator</h1>
-          <p>Upload your cover and configure the selected views.</p>
-        </div>
-        <span className="workspace-pill">
-          {activeTemplates.length} / 4 views
-        </span>
+        <h1>Phone covers</h1>
       </div>
       <section className="studio-shell" aria-label="AI product image studio">
         <div className="studio-grid">
@@ -441,8 +435,10 @@ export default function Home() {
                 role="button"
                 tabIndex={0}
                 onKeyDown={(event) => {
-                  if (event.key === "Enter" || event.key === " ")
+                  if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
                     inputRef.current?.click();
+                  }
                 }}
               >
                 <CornerMarks />
@@ -454,24 +450,25 @@ export default function Home() {
                 <span className="file-note">JPG, PNG or WebP · Max 10 MB</span>
               </div>
             )}
-            <AiProviderSelector selection={aiSelection} disabled={isLoading} />
           </div>
 
           <div className="controls-column">
-            <div className="control-heading">
-              <div>
-                <h2>Generation settings</h2>
-              </div>
-              <span className="ai-badge">
-                <CheckIcon /> Template locked
-              </span>
-            </div>
+            <PhoneModelSelector
+              value={phoneModel}
+              disabled={isLoading}
+              onChange={(next) => {
+                setPhoneModel(next);
+                setResults([]);
+                setFailures([]);
+                setError("");
+              }}
+            />
             <fieldset
               className="template-picker"
               disabled={isLoading}
               aria-describedby="layout-selection-help"
             >
-              <legend>Choose references to generate</legend>
+              <legend>Image views</legend>
               <div className="template-selection-actions">
                 <span role="status">
                   {activeTemplates.length} of 4 selected
@@ -498,15 +495,13 @@ export default function Home() {
                 </div>
               </div>
               <div className="template-grid">
-                {TEMPLATE_SET.map((item, index) => (
+                {TEMPLATE_SET.map((item) => (
                   <label
                     className={`template-card template-option ${selectedViews.includes(item.id) ? "is-selected" : ""}`}
                     key={item.id}
                   >
                     <span>
-                      <strong>
-                        {index + 1}. {item.label}
-                      </strong>
+                      <strong>{item.label}</strong>
                       <small>{item.detail}</small>
                     </span>
                     <input
@@ -529,29 +524,16 @@ export default function Home() {
               </div>
               <p id="layout-selection-help">
                 {activeTemplates.length
-                  ? "Only checked views use generation credits."
+                  ? "Generation and review use AI credits for each selected view."
                   : "Select at least one view."}
               </p>
             </fieldset>
 
-            <PhoneModelSelector
-              value={phoneModel}
-              disabled={isLoading}
-              onChange={(next) => {
-                setPhoneModel(next);
-                setResults([]);
-                setFailures([]);
-                setError("");
-              }}
-            />
-
-            <details className="workspace-details">
+            <details className="workspace-details cover-product-notes">
               <summary>Product notes (optional)</summary>
               <label className="prompt-field">
-                <span>
-                  Product notes <small>Optional</small>
-                </span>
                 <textarea
+                  aria-label="Product notes"
                   value={customPrompt}
                   onChange={(event) =>
                     setCustomPrompt(event.target.value.slice(0, 400))
@@ -563,39 +545,13 @@ export default function Home() {
               </label>
             </details>
 
-            <fieldset
-              className="ai-provider-selector"
-              disabled={isLoading}
-              aria-describedby="render-mode-help"
-            >
-              <legend>Rendering</legend>
-              <input type="hidden" name="renderMode" value="template" />
-              <strong>Exact template · cover replacement</strong>
-              <p id="render-mode-help" className="ai-provider-help">
-                Uses your four selected reference layouts. Original scene,
-                framing, hands and background stay fixed. Only the phone-cover
-                area and selected camera hardware are replaced.
-              </p>
-            </fieldset>
-            <details className="workspace-details">
-              <summary>Generation & review details</summary>
-              <p>
-                Product input: up to{" "}
-                {aiSelection.provider === "gemini" &&
-                aiSelection.qualityTier === "quality"
-                  ? "1536"
-                  : "1024"}
-                px. One analysis per request and a paid review per result.
-                Flagged images remain drafts. No automatic redraws or upgrades.
-                New settings apply to the next generation.
-              </p>
-            </details>
+            <AiProviderSelector selection={aiSelection} disabled={isLoading} />
             <button
               className="generate-button"
               type="button"
               onClick={() => void generate()}
               disabled={
-                isLoading || !aiSelection.ready || !activeTemplates.length
+                isLoading || !file || !aiSelection.ready || !activeTemplates.length
               }
             >
               {isLoading ? <span className="spinner" /> : <SparklesIcon />}
@@ -603,7 +559,7 @@ export default function Home() {
                 ? `Creating & checking ${pendingViews.length} ${pendingViews.length === 1 ? "image" : "images"}…`
                 : activeTemplates.length
                   ? `Generate ${activeTemplates.length} selected ${activeTemplates.length === 1 ? "image" : "images"}`
-                  : "Select at least 1 reference"}
+                  : "Select at least 1 view"}
               {!isLoading && <ArrowIcon />}
             </button>
           </div>
@@ -805,11 +761,6 @@ export default function Home() {
         />
       )}
 
-      {!isLoading && !results.length && !failures.length && (
-        <div className="workspace-empty">
-          Generated images will appear here.
-        </div>
-      )}
     </main>
   );
 }

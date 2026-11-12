@@ -34,7 +34,7 @@ export default function LoginForm({ next }: { next: string }) {
         throw new Error(data.error || "Could not send your code.");
       }
       setChallenge(data.challengeId);
-      setDevelopmentCode(data.developmentCode || "");
+      setDevelopmentCode(data.otp || data.developmentCode || "");
       setCode("");
       setResendAt(Date.now() + data.resendAfter * 1000);
     } catch (error) {
@@ -68,7 +68,7 @@ export default function LoginForm({ next }: { next: string }) {
       <span className="login-step">
         {challenge ? "STEP 02 / VERIFY YOUR NUMBER" : "LET’S GET YOU STARTED"}
       </span>
-      <h1>{challenge ? "Check your phone." : "Welcome to Margyn."}</h1>
+      <h1>{challenge ? developmentCode ? "Your test code is ready." : "Check your phone." : "Welcome to Margyn."}</h1>
       <p className="login-intro">
         {challenge
           ? `Enter the 6-digit code for +91 ${phone}. It expires in 5 minutes.`
@@ -148,7 +148,7 @@ export default function LoginForm({ next }: { next: string }) {
               />
             </div>
             <p className="field-help">
-              We’ll send a one-time code to verify it.
+              Use a one-time code to verify your number.
             </p>
           </>
         )}
@@ -159,7 +159,7 @@ export default function LoginForm({ next }: { next: string }) {
         )}
         {developmentCode && (
           <div className="development-notice">
-            <strong>Local development mode</strong>
+            <strong>Test login mode</strong>
             <span>
               No SMS was sent. Your test code is <b>{developmentCode}</b>.
             </span>

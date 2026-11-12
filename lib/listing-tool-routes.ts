@@ -1,6 +1,6 @@
 export const LISTING_ROOT = "/tools/listing-tool";
 export const LISTING_TABS = [
-  { path: "", label: "Overview", icon: "grid" },
+  { path: "", label: "Start", icon: "grid" },
   { path: "/products", label: "Phone covers", icon: "layers" },
   { path: "/general-products", label: "General products", icon: "box" },
   { path: "/charms/batch", label: "Charms", icon: "spark" },
@@ -8,7 +8,7 @@ export const LISTING_TABS = [
 export function validListingSegments(parts: string[]) {
   if (!parts.length) return true;
   if (parts.some(part => !part || part.length > 160 || /[\\/\u0000-\u001f]/.test(part) || part === "." || part === "..")) return false;
-  if (parts.length === 1) return ["products", "create-product", "general-products", "create-general-product"].includes(parts[0]);
+  if (parts.length === 1) return ["products", "create-product", "general-products", "create-general-product", "analytics", "import"].includes(parts[0]);
   if (parts.length === 2) return (parts[0] === "charms" && (parts[1] === "batch" || /^\d+(?:\.\d+)?$/.test(parts[1]))) || (parts[0] === "general-products" && /^[a-f0-9]{24}$/i.test(parts[1]));
   return parts.length === 3 && ((parts[0] === "products" && parts[1] === "model") || (parts[0] === "general-products" && parts[1] === "category"));
 }

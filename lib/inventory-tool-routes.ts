@@ -1,16 +1,21 @@
 export const INVENTORY_ROOT = "/tools/inventory-admin";
-export const INVENTORY_SECTIONS = [
-  { path: "", label: "Overview", icon: "grid" },
+export const INVENTORY_PRIMARY_SECTIONS = [
+  { path: "", label: "Start", icon: "grid" },
   { path: "/inventory", label: "Inventory", icon: "layers" },
-  { path: "/categories", label: "Categories", icon: "grid" },
-  { path: "/products", label: "Products", icon: "box" },
-  { path: "/product-designs", label: "Designs", icon: "spark" },
   { path: "/printing-jobs", label: "Print jobs", icon: "edit" },
   { path: "/purchase-orders", label: "Purchases", icon: "truck" },
+] as const;
+export const INVENTORY_OTHER_SECTIONS = [
+  { path: "/inventory/low-stock", label: "Low stock", icon: "layers" },
   { path: "/barcode-report", label: "Packed items", icon: "box" },
+  { path: "/products", label: "Products", icon: "box" },
+  { path: "/categories", label: "Categories", icon: "grid" },
+  { path: "/product-designs", label: "Designs", icon: "spark" },
   { path: "/imagekit-images", label: "Image library", icon: "spark" },
   { path: "/create-user", label: "Staff", icon: "user" },
 ] as const;
+export const INVENTORY_SECTIONS = [...INVENTORY_PRIMARY_SECTIONS, ...INVENTORY_OTHER_SECTIONS];
+
 export function validInventorySegments(parts: string[]) {
   if (!parts.length) return true;
   if (parts.length === 1) return INVENTORY_SECTIONS.some(section => section.path === "/" + parts[0]);

@@ -44,7 +44,5 @@ export const toolPath = (id: string) => "/tools/" + id;
 export const TOOL_LOGIN_PATHS = [
   "/tools",
   ...SELLER_TOOLS.map((tool) => toolPath(tool.id)),
-  ...IMAGE_GENERATOR_MODES.filter((mode) => mode.id !== "covers").map(
-    (mode) => mode.path,
-  ),
+  ...IMAGE_GENERATOR_MODES.map((mode) => mode.path),
 ];

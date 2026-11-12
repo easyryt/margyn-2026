@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { requireToolUser } from "@/lib/tool-auth";
 import { IMAGE_GENERATOR_MODES } from "@/lib/image-generator/modes";
 import ImageStudioFrame from "@/components/image-generator/frame";
+import Covers from "@/components/image-generator/views/covers";
 import Charms from "@/components/image-generator/views/charms";
 import Packs from "@/components/image-generator/views/charm-packs";
 import Backgrounds from "@/components/image-generator/views/backgrounds";
@@ -18,13 +19,13 @@ export async function generateMetadata({ params }: Props) {
 }
 export default async function ImageToolModePage({ params }: Props) {
   const { slug, view } = await params;
-  const mode = IMAGE_GENERATOR_MODES.find(
-    (item) => item.id === view && item.id !== "covers",
-  );
+  const mode = IMAGE_GENERATOR_MODES.find((item) => item.id === view);
   if (slug !== "image-generator" || !mode) notFound();
   await requireToolUser(mode.path);
   const content =
-    mode.id === "charms" ? (
+    mode.id === "covers" ? (
+      <Covers />
+    ) : mode.id === "charms" ? (
       <Charms />
     ) : mode.id === "charm-packs" ? (
       <Packs />

@@ -1,5 +1,5 @@
 import ImageStudioFrame from "@/components/image-generator/frame";
-import CoverStudio from "@/components/image-generator/views/covers";
+import ImageGeneratorHome from "@/components/image-generator/home";
 import { notFound } from "next/navigation";
 import { SellerToolWorkspace } from "@/components/seller-tools-dashboard";
 import ShippingLabels from "@/components/shipping-labels";
@@ -21,8 +21,8 @@ export default async function ToolPage({ params }: Props) {
   await requireToolUser(toolPath(tool.id));
   if (tool.id === "image-generator")
     return (
-      <ImageStudioFrame mode="covers">
-        <CoverStudio />
+      <ImageStudioFrame mode="start">
+        <ImageGeneratorHome />
       </ImageStudioFrame>
     );
   return tool.id === "shipping-labels" ? (

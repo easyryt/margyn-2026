@@ -76,12 +76,11 @@ export default function CharmPacksPage() {
 
   return (
     <main className="workspace-page pack-page">
-      <div className="workspace-heading"><div><h1>Charm packs</h1><p>Set the quantity. Add tags after generation.</p></div><span className="workspace-pill">1 upload</span></div>
+      <div className="workspace-heading"><h1>Charm packs</h1></div>
       <section id="pack-studio" className="charm-studio-section">
         <div className="pack-workspace">
           <input ref={inputRef} type="file" accept="image/jpeg,image/png,image/webp" hidden disabled={busy} onChange={(event) => { selectFile(event.target.files?.[0]); event.target.value = ""; }} />
           <button type="button" className="charm-upload-card pack-upload" disabled={busy} onClick={() => inputRef.current?.click()}>
-            <span className="charm-upload-index">01</span>
             <span className="charm-upload-preview">{preview ? <Image src={preview} alt="Your raw charm-pack product" fill sizes="(max-width: 680px) 80vw, 380px" unoptimized /> : <span className="pack-upload-empty"><b>+</b><span>Upload one raw image</span><small>JPG, PNG or WebP · up to 10 MB</small></span>}</span>
             <strong>{file ? "Change product photo" : "Your single product"}</strong><small>{file?.name || "Show the full item against a plain background"}</small>
           </button>
@@ -107,7 +106,6 @@ export default function CharmPacksPage() {
         </div>
         {failures.map((failure) => <div key={failure.viewId} className="charm-retry-view" role="status"><div><strong>{failure.label} needs another attempt</strong><p>{failure.message}</p></div><button className="app-button" type="button" disabled={busy || !aiSelection.ready} onClick={() => void generate(failure.viewId)}>{busyView === failure.viewId ? "Retrying…" : "Retry this view"}</button></div>)}
       </section>}
-      {!busy && !images.length && !failures.length && <div className="workspace-empty">Generated images will appear here.</div>}
     </main>
   );
 }

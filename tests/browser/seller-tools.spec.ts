@@ -81,8 +81,8 @@ test("seller dashboard and all four internal tool pages require login and preser
     ).toBeVisible();
     if (id === "shipping-labels")
       await expect(
-        page.getByRole("button", { name: "Process PDF", exact: true }),
-      ).toBeDisabled();
+        page.getByRole("button", { name: "Choose PDF", exact: true }),
+      ).toBeVisible();
     else if (id === "image-generator")
       await expect(
         page
@@ -91,7 +91,7 @@ test("seller dashboard and all four internal tool pages require login and preser
             exact: true,
           })
           .getByRole("link"),
-      ).toHaveCount(5);
+      ).toHaveCount(6);
     else if (id === "listing-tool")
       await expect(page.getByRole("navigation", {name:"Listing tool sections", exact:true})).toBeVisible();
     else if (id === "inventory-admin")

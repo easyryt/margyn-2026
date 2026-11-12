@@ -1,32 +1,34 @@
+export const IMAGE_GENERATOR_ROOT = "/tools/image-generator";
+
 export const IMAGE_GENERATOR_MODES = [
   {
     id: "covers",
     label: "Phone covers",
-    path: "/tools/image-generator",
+    path: IMAGE_GENERATOR_ROOT + "/covers",
     local: false,
   },
   {
     id: "charms",
     label: "Cover & charm",
-    path: "/tools/image-generator/charms",
+    path: IMAGE_GENERATOR_ROOT + "/charms",
     local: false,
   },
   {
     id: "charm-packs",
     label: "Charm packs",
-    path: "/tools/image-generator/charm-packs",
+    path: IMAGE_GENERATOR_ROOT + "/charm-packs",
     local: false,
   },
   {
     id: "backgrounds",
     label: "Backgrounds",
-    path: "/tools/image-generator/backgrounds",
+    path: IMAGE_GENERATOR_ROOT + "/backgrounds",
     local: true,
   },
   {
     id: "enhance",
     label: "Image enhancer",
-    path: "/tools/image-generator/enhance",
+    path: IMAGE_GENERATOR_ROOT + "/enhance",
     local: true,
   },
 ] as const;

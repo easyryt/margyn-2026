@@ -40,9 +40,11 @@ test("shipping labels uses the original processing flow with protected real PDF 
   await expect(
     page.getByRole("heading", { name: "Shipping Labels", exact: true }),
   ).toBeVisible();
-  await expect(
-    page.getByRole("button", { name: "Process PDF", exact: true }),
-  ).toBeDisabled();
+  const choose = page.getByRole("button", { name: "Choose PDF", exact: true });
+  const sort = page.getByRole("button", { name: "Sort labels", exact: true });
+  const sorter = page.getByRole("region", { name: "Shipping-label PDF sorter", exact: true });
+  await expect(choose).toBeVisible();
+  await expect(sort).toHaveCount(0);
   const input = page.getByLabel("Upload shipping-label PDF", { exact: true });
   await input.setInputFiles({
     name: "wrong.txt",
@@ -50,31 +52,43 @@ test("shipping labels uses the original processing flow with protected real PDF 
     buffer: Buffer.from("wrong file"),
   });
   await expect(
-    page
-      .getByRole("region", { name: "Shipping-label PDF sorter", exact: true })
-      .getByRole("alert"),
+    sorter.getByRole("alert"),
   ).toContainText("Choose a PDF file");
   await input.setInputFiles({
     name: "broken.pdf",
     mimeType: "application/pdf",
     buffer: Buffer.from("not a real pdf"),
   });
-  await page.getByRole("button", { name: "Process PDF", exact: true }).click();
+  const statsRoute = "**/api/tools/shipping-labels/stats";
+  let resumeStats = () => {};
+  const pauseStats = new Promise<void>((resolve) => { resumeStats = resolve; });
+  await page.route(statsRoute, async (route) => {
+    await pauseStats;
+    await route.abort().catch(() => {});
+  });
+  try {
+    const started = page.waitForRequest(statsRoute);
+    await sort.click();
+    await started;
+    await expect(sorter.getByRole("status")).toContainText("Reading your PDF");
+    await page.getByRole("button", { name: "Cancel", exact: true }).click();
+    await expect(sort).toBeVisible();
+  } finally {
+    resumeStats();
+    await page.unroute(statsRoute);
+  }
+  await sort.click();
   await expect(
-    page
-      .getByRole("region", { name: "Shipping-label PDF sorter", exact: true })
-      .getByRole("alert"),
+    sorter.getByRole("alert"),
   ).toContainText("couldn’t read this PDF");
   await input.setInputFiles({
     name: "no-orders.pdf",
     mimeType: "application/pdf",
     buffer: await makeShippingPdf({ orders: false }),
   });
-  await page.getByRole("button", { name: "Process PDF", exact: true }).click();
+  await sort.click();
   await expect(
-    page
-      .getByRole("region", { name: "Shipping-label PDF sorter", exact: true })
-      .getByRole("alert"),
+    sorter.getByRole("alert"),
   ).toContainText("No valid orders");
   // Larger than Next's default 10 MB clone limit, verifying the actual upload proxy too.
   const pdf = await makeShippingPdf({ large: true });
@@ -87,6 +101,7 @@ test("shipping labels uses the original processing flow with protected real PDF 
   await expect(page.locator(".shipping-selected-file")).toContainText(
     "shipping-labels.pdf",
   );
+  await expect(page.getByRole("button", { name: "Change PDF", exact: true })).toBeVisible();
   fs.mkdirSync(".test-data/screenshots", { recursive: true });
   await page.screenshot({
     path: ".test-data/screenshots/shipping-upload-desktop.png",
@@ -107,9 +122,9 @@ test("shipping labels uses the original processing flow with protected real PDF 
     .getByRole("button", { name: "Close tool menu", exact: true })
     .click();
   await page.setViewportSize({ width: 1440, height: 1000 });
-  await page.getByRole("button", { name: "Process PDF", exact: true }).click();
+  await sort.click();
   await expect(
-    page.getByText("Processing complete", { exact: true }),
+    page.getByRole("heading", { name: "Labels ready to download", exact: true }),
   ).toBeVisible({ timeout: 60000 });
   await expect(page.locator(".shipping-stats > div").nth(0)).toContainText("3");
   await expect(page.locator(".shipping-stats > div").nth(1)).toContainText("2");
@@ -141,7 +156,7 @@ test("shipping labels uses the original processing flow with protected real PDF 
   ).toBe(2);
   const summaryEvent = page.waitForEvent("download");
   await page
-    .getByRole("button", { name: "Download Summary PDF", exact: false })
+    .getByRole("button", { name: "Download summary PDF", exact: true })
     .click();
   const summary = await summaryEvent;
   expect(summary.suggestedFilename()).toBe("Order-Summary.pdf");
@@ -161,11 +176,10 @@ test("shipping labels uses the original processing flow with protected real PDF 
     animations: "disabled",
   });
   await page
-    .getByRole("button", { name: "Process another file", exact: true })
+    .getByRole("button", { name: "Sort another PDF", exact: true })
     .click();
-  await expect(
-    page.getByRole("button", { name: "Process PDF", exact: true }),
-  ).toBeDisabled();
+  await expect(choose).toBeVisible();
+  await expect(sort).toHaveCount(0);
   await expect(page.locator(".shipping-selected-file")).toHaveCount(0);
   // Re-selecting the same filename after reset works, and removal clears the selected file.
   await input.setInputFiles({
@@ -176,8 +190,7 @@ test("shipping labels uses the original processing flow with protected real PDF 
   await page
     .getByRole("button", { name: "Remove selected PDF", exact: true })
     .click();
-  await expect(
-    page.getByRole("button", { name: "Process PDF", exact: true }),
-  ).toBeDisabled();
+  await expect(choose).toBeFocused();
+  await expect(sort).toHaveCount(0);
   expect(errors).toEqual([]);
 });

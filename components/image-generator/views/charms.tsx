@@ -119,26 +119,23 @@ export default function CharmsPage() {
 
   return (
     <main className="workspace-page">
-      <div className="workspace-heading"><div><h1>Cover & charm</h1><p>Upload both products and choose an output view.</p></div><span className="workspace-pill">2 uploads</span></div>
+      <div className="workspace-heading"><h1>Cover & charm</h1></div>
       <section id="charm-studio" className="charm-studio-section">
         <div className="charm-upload-workspace">
           <input ref={coverInputRef} type="file" accept="image/jpeg,image/png,image/webp" hidden onChange={(event) => handleFileInput("cover", event)} />
           <input ref={charmInputRef} type="file" accept="image/jpeg,image/png,image/webp" hidden onChange={(event) => handleFileInput("charm", event)} />
           <button className="charm-upload-card" type="button" onClick={() => coverInputRef.current?.click()} disabled={isGenerating}>
-            <span className="charm-upload-index">01</span>
             <span className="charm-upload-preview">{coverPreviewUrl ? <Image src={coverPreviewUrl} alt="Raw phone cover upload" fill sizes="(max-width: 760px) 42vw, 310px" unoptimized /> : <b>+</b>}</span>
             <strong>Raw phone cover</strong><small>{fileLabel(coverFile, "The cover photo may include its attached charm")}</small>
           </button>
           <button className="charm-upload-card" type="button" onClick={() => charmInputRef.current?.click()} disabled={isGenerating}>
-            <span className="charm-upload-index">02</span>
             <span className="charm-upload-preview">{charmPreviewUrl ? <Image src={charmPreviewUrl} alt="Raw charm upload" fill sizes="(max-width: 760px) 42vw, 310px" unoptimized /> : <b>+</b>}</span>
             <strong>Your charm accessory</strong><small>{fileLabel(charmFile, "Show the complete charm and its clasp, loop, or cord")}</small>
           </button>
           <div className="charm-generate-card">
-            <strong>Generation settings</strong>
             <GenerationScope views={CHARM_LAYOUT_PREVIEWS} value={scope} onChange={setScope} disabled={isGenerating} />
             <AiProviderSelector selection={aiSelection} disabled={isGenerating} />
-            <button type="button" className="generate-button" onClick={() => void generate(scope)} disabled={isGenerating || !coverFile || !charmFile || !aiSelection.ready}>{isGenerating ? "Creating and checking your images…" : scope === "all" ? "Create all 3 charm images" : `Create 1 image · ${aiSelection.qualityTier === "quality" ? aiSelection.provider === "openai" ? "Flare low" : "high quality" : "economy"}`}</button>
+            <button type="button" className="generate-button" onClick={() => void generate(scope)} disabled={isGenerating || !coverFile || !charmFile || !aiSelection.ready}>{isGenerating ? "Creating and checking your images…" : scope === "all" ? "Generate 3 images" : "Generate 1 image"}</button>
           </div>
         </div>
         {error && <p className="charm-error" role="alert">{error}</p>}
@@ -160,7 +157,6 @@ export default function CharmsPage() {
         </div>
       )}
 
-      {!isGenerating && !results.length && !failures.length && <div className="workspace-empty">Generated images will appear here.</div>}
     </main>
   );
 }

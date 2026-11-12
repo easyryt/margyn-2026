@@ -19,7 +19,6 @@ export default function ShippingLabels() {
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [summaryDownloading, setSummaryDownloading] = useState(false);
-  const [completed, setCompleted] = useState(false);
   const [zipBlob, setZipBlob] = useState<Blob | null>(null);
   const [summaryBlob, setSummaryBlob] = useState<Blob | null>(null);
   const [stats, setStats] = useState<Stats>({
@@ -31,6 +30,8 @@ export default function ShippingLabels() {
   const [phase, setPhase] = useState("");
   const [dragging, setDragging] = useState(false);
   const input = useRef<HTMLInputElement>(null);
+  const uploadButton = useRef<HTMLButtonElement>(null);
+  const resultHeading = useRef<HTMLHeadingElement>(null);
   const request = useRef<AbortController | null>(null);
   const downloadUrls = useRef(new Set<string>());
   useEffect(() => {
@@ -40,13 +41,12 @@ export default function ShippingLabels() {
       urls.forEach((url) => URL.revokeObjectURL(url));
     };
   }, []);
+  useEffect(() => {
+    if (zipBlob) resultHeading.current?.focus();
+  }, [zipBlob]);
+
   function selectFile(next: File | null) {
-    if (loading || summaryDownloading) return;
-    setError("");
-    setCompleted(false);
-    setZipBlob(null);
-    setSummaryBlob(null);
-    setStats({ orders: 0, products: 0, pages: 0 });
+    if (request.current) return;
     if (
       next &&
       !(
@@ -55,27 +55,29 @@ export default function ShippingLabels() {
       )
     ) {
       setError("Choose a PDF file to continue.");
-      setFile(null);
       return;
     }
     if (next && (!next.size || next.size > MAX_FILE_SIZE)) {
       setError(
         !next.size
           ? "This PDF is empty. Choose another file."
-          : "Choose a PDF smaller than 1 GB.",
+          : "Choose a PDF up to 1 GB.",
       );
-      setFile(null);
       return;
     }
     setFile(next);
-    if (input.current) input.current.value = "";
+    setError("");
+    setZipBlob(null);
+    setSummaryBlob(null);
   }
   function onInput(event: ChangeEvent<HTMLInputElement>) {
     selectFile(event.target.files?.[0] || null);
+    event.target.value = "";
   }
   function onDrop(event: DragEvent<HTMLButtonElement>) {
     event.preventDefault();
     setDragging(false);
+    if (request.current) return;
     if (event.dataTransfer.files.length !== 1) {
       setError("Choose one PDF at a time.");
       return;
@@ -107,33 +109,33 @@ export default function ShippingLabels() {
     return response;
   }
   async function processPdf() {
-    if (!file || loading) return;
+    if (!file || request.current) return;
     const controller = new AbortController();
     request.current = controller;
     setLoading(true);
-    setCompleted(false);
     setError("");
-    setPhase("Reading your PDF and finding order details…");
+    setPhase("Reading your PDF…");
     try {
       // Preserve the original tool flow: statistics, sorted ZIP, then summary on demand.
       const statsResponse = await upload("stats", controller.signal);
       const data = await statsResponse.json();
-      setStats({
-        orders: data.orders ?? 0,
-        products: data.products ?? 0,
-        pages: data.pages ?? 0,
-      });
-      setPhase("Sorting labels by SKU and preparing your downloads…");
+      if (controller.signal.aborted) return;
+      setPhase("Grouping labels by SKU…");
       const processResponse = await upload("process", controller.signal);
       const zip = await processResponse.blob();
       if (!controller.signal.aborted) {
+        setStats({
+          orders: data.orders ?? 0,
+          products: data.products ?? 0,
+          pages: data.pages ?? 0,
+        });
         setZipBlob(zip);
-        setCompleted(true);
       }
     } catch (error) {
       if (!controller.signal.aborted) setError((error as Error).message);
     } finally {
       if (!controller.signal.aborted) {
+        request.current = null;
         setLoading(false);
         setPhase("");
       }
@@ -154,7 +156,7 @@ export default function ShippingLabels() {
     }, 1000);
   }
   async function downloadSummary() {
-    if (!file || summaryDownloading) return;
+    if (!file || request.current) return;
     if (summaryBlob) {
       downloadFile(summaryBlob, "Order-Summary.pdf");
       return;
@@ -173,108 +175,102 @@ export default function ShippingLabels() {
     } catch (error) {
       if (!controller.signal.aborted) setError((error as Error).message);
     } finally {
-      if (!controller.signal.aborted) setSummaryDownloading(false);
+      if (!controller.signal.aborted) {
+        request.current = null;
+        setSummaryDownloading(false);
+      }
     }
   }
   function cancel() {
     request.current?.abort();
+    request.current = null;
     setLoading(false);
     setPhase("");
     setSummaryDownloading(false);
   }
-  function reset() {
-    cancel();
-    selectFile(null);
-  }
   return (
     <main className="shipping-tool">
-      <header className="tools-page-heading">
-        <div>
-          <span className="tools-eyebrow">DISPATCH / MARGYN TOOLS</span>
-          <h1>Shipping Labels</h1>
-          <p>
-            Less sorting. More shipping. Get every label in the right place.
-          </p>
-        </div>
-        <span className="tools-live-badge">
-          <span /> READY TO USE
-        </span>
+      <header className="shipping-heading">
+        <h1>Shipping Labels</h1>
+        <p>Sort a shipping-label PDF by SKU and download the grouped files.</p>
       </header>
-      <div className="shipping-steps" aria-label="Processing steps">
-        {["Upload PDF", "Sort by SKU", "Download files"].map((label, index) => (
-          <div
-            key={label}
-            className={
-              completed || (file && index === 0) || (loading && index === 1)
-                ? "active"
-                : ""
-            }
-          >
-            <span>
-              {completed || (file && index === 0) ? (
-                <Icon name="check" size={12} />
-              ) : (
-                index + 1
-              )}
-            </span>
-            {label}
-            {index < 2 && <i />}
+
+      <section className="shipping-panel" aria-label="Shipping-label PDF sorter">
+        {error && (
+          <div role="alert" className="shipping-error">
+            <p>{error}</p>
+            {error.includes("sign in again") && (
+              <Link href="/login?next=/tools/shipping-labels">Sign in again</Link>
+            )}
           </div>
-        ))}
-      </div>
-      <div className="shipping-layout">
-        <section
-          className="shipping-main-panel"
-          aria-label="Shipping-label PDF sorter"
-        >
-          <div className="shipping-panel-title">
-            <span className="shipping-panel-icon">
-              <Icon name={completed ? "check" : "upload"} size={20} />
-            </span>
-            <div>
-              <h2>
-                {completed
-                  ? "Your files are ready."
-                  : "Let’s get your labels sorted."}
-              </h2>
-              <p>
-                {completed
-                  ? "Grouped, organized and ready for your next dispatch."
-                  : "Start with your original shipping-label PDF."}
-              </p>
-            </div>
-          </div>
-          {error && (
-            <div role="alert" className="shipping-error">
-              <Icon name="shield" size={17} />
+        )}
+
+        {zipBlob ? (
+          <>
+            <header className="shipping-result-heading">
+              <span className="shipping-result-icon"><Icon name="check" size={20} /></span>
               <div>
-                <p>{error}</p>
-                {error.includes("sign in again") && (
-                  <Link href="/login?next=/tools/shipping-labels">
-                    Sign in again <Icon name="arrow" size={13} />
-                  </Link>
-                )}
+                <h2 ref={resultHeading} tabIndex={-1}>Labels ready to download</h2>
+                <p>{file?.name}</p>
               </div>
-            </div>
-          )}
-          {!completed ? (
-            <>
-              <input
-                ref={input}
-                type="file"
-                accept="application/pdf,.pdf"
-                id="shipping-label-pdf"
-                aria-label="Upload shipping-label PDF"
-                onChange={onInput}
-                disabled={loading}
-                className="shipping-file-input"
-              />
+            </header>
+
+            <dl className="shipping-stats">
+              <div><dt>Orders</dt><dd>{stats.orders}</dd></div>
+              <div><dt>SKUs</dt><dd>{stats.products}</dd></div>
+              <div><dt>PDF pages</dt><dd>{stats.pages}</dd></div>
+            </dl>
+
+            <div className="shipping-downloads">
               <button
                 type="button"
-                className={
-                  "shipping-dropzone" + (dragging ? " is-dragging" : "")
-                }
-                aria-label="Choose shipping-label PDF"
+                className="tools-primary-button"
+                aria-describedby="shipping-zip-description"
+                onClick={() => downloadFile(zipBlob, "Sorted-Orders.zip")}
+              >
+                <Icon name="download" size={18} /> Download ZIP
+              </button>
+              <button
+                type="button"
+                className="shipping-secondary-button"
+                onClick={() => void downloadSummary()}
+                disabled={summaryDownloading}
+              >
+                <Icon name="file" size={18} />
+                <span aria-live="polite">{summaryDownloading ? "Preparing summary…" : "Download summary PDF"}</span>
+              </button>
+            </div>
+            <p id="shipping-zip-description" className="shipping-hint">The ZIP includes one PDF per SKU and the order summary.</p>
+            <button
+              type="button"
+              className="shipping-text-button"
+              onClick={() => {
+                selectFile(null);
+                requestAnimationFrame(() => uploadButton.current?.focus());
+              }}
+              disabled={summaryDownloading}
+            >
+              <Icon name="refresh" size={16} /> Sort another PDF
+            </button>
+          </>
+        ) : (
+          <>
+            <input
+              ref={input}
+              type="file"
+              accept="application/pdf,.pdf"
+              aria-label="Upload shipping-label PDF"
+              onChange={onInput}
+              disabled={loading}
+              hidden
+            />
+            <div className={file ? "shipping-selected-file" : undefined}>
+              <button
+                ref={uploadButton}
+                type="button"
+                className={`shipping-dropzone${dragging ? " is-dragging" : ""}`}
+                aria-label={file ? "Change PDF" : "Choose PDF"}
+                aria-describedby={file ? "shipping-selected-name" : "shipping-pdf-requirements"}
                 disabled={loading}
                 onClick={() => input.current?.click()}
                 onDragOver={(event) => {
@@ -285,203 +281,59 @@ export default function ShippingLabels() {
                 onDrop={onDrop}
               >
                 <span className="shipping-upload-icon">
-                  <Icon name="upload" size={30} />
+                  <Icon name={file ? "file" : "upload"} size={24} />
                 </span>
-                <strong>
-                  {dragging
-                    ? "Drop your PDF here"
-                    : "Drag & drop your PDF here"}
-                </strong>
-                <span>
-                  or <b>browse files</b> from your computer
-                </span>
-                <small>PDF format · One file at a time · Up to 1 GB</small>
+                {file ? (
+                  <>
+                    <span id="shipping-selected-name">
+                      <strong>{file.name}</strong>
+                      <small>{fileSize(file.size)}</small>
+                    </span>
+                    <span className="shipping-change-label">Change PDF</span>
+                  </>
+                ) : (
+                  <span>
+                    <strong>Choose PDF</strong>
+                    <small>Drop one PDF here or browse files · Up to 1 GB</small>
+                  </span>
+                )}
               </button>
               {file && (
-                <div className="shipping-selected-file">
-                  <span>
-                    <Icon name="file" size={21} />
-                  </span>
-                  <div>
-                    <strong>{file.name}</strong>
-                    <small>
-                      {fileSize(file.size)} ·{" "}
-                      {loading ? "Processing" : "Ready to process"}
-                    </small>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => selectFile(null)}
-                    disabled={loading}
-                    aria-label="Remove selected PDF"
-                  >
-                    <Icon name="close" size={17} />
-                  </button>
-                </div>
+                <button
+                  type="button"
+                  className="shipping-remove"
+                  aria-label="Remove selected PDF"
+                  disabled={loading}
+                  onClick={() => {
+                    selectFile(null);
+                    uploadButton.current?.focus();
+                  }}
+                >
+                  <Icon name="close" size={18} />
+                </button>
               )}
-              {loading && (
-                <div
-                  className="shipping-progress"
-                  role="status"
-                  aria-live="polite"
-                >
-                  <span className="shipping-spinner" />
-                  <div>
-                    <strong>Working on your labels</strong>
-                    <span>{phase}</span>
-                  </div>
-                  <button type="button" onClick={cancel}>
-                    Cancel
-                  </button>
-                </div>
-              )}
-              <div className="shipping-panel-footer">
-                <span>
-                  <Icon name="shield" size={14} /> Your PDF is processed
-                  privately.
-                </span>
-                <button
-                  type="button"
-                  className="tools-primary-button"
-                  onClick={() => void processPdf()}
-                  disabled={!file || loading}
-                >
-                  {loading ? "Processing PDF…" : "Process PDF"}
-                  <Icon name={loading ? "clock" : "arrow"} size={16} />
-                </button>
-              </div>
-            </>
-          ) : (
-            <>
-              <div className="shipping-complete-note" role="status">
-                <span>
-                  <Icon name="check" size={19} />
-                </span>
-                <div>
-                  <strong>Processing complete</strong>
-                  <p>{file?.name}</p>
-                </div>
-              </div>
-              <div className="shipping-stats">
-                {[
-                  { label: "Orders", value: stats.orders, icon: "box" },
-                  { label: "Products", value: stats.products, icon: "layers" },
-                  { label: "PDF pages", value: stats.pages, icon: "file" },
-                ].map((stat) => (
-                  <div key={stat.label}>
-                    <Icon name={stat.icon} size={19} />
-                    <strong>{stat.value}</strong>
-                    <span>{stat.label}</span>
-                  </div>
-                ))}
-              </div>
-              <div className="shipping-downloads">
-                <button
-                  type="button"
-                  onClick={() =>
-                    zipBlob && downloadFile(zipBlob, "Sorted-Orders.zip")
-                  }
-                  disabled={!zipBlob}
-                >
-                  <span>
-                    <Icon name="download" size={20} />
-                  </span>
-                  <div>
-                    <strong>Download ZIP</strong>
-                    <small>Labels grouped by SKU + Summary.pdf</small>
-                  </div>
-                  <Icon name="arrow" size={16} />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => void downloadSummary()}
-                  disabled={summaryDownloading}
-                >
-                  <span>
-                    <Icon
-                      name={summaryDownloading ? "clock" : "file"}
-                      size={20}
-                    />
-                  </span>
-                  <div>
-                    <strong>
-                      {summaryDownloading
-                        ? "Preparing summary…"
-                        : "Download Summary PDF"}
-                    </strong>
-                    <small>Product SKUs and order quantities</small>
-                  </div>
-                  <Icon name="arrow" size={16} />
-                </button>
-              </div>
-              <div className="shipping-reset-row">
-                <span>Your source file stays unchanged.</span>
-                <button
-                  type="button"
-                  onClick={reset}
-                  disabled={summaryDownloading}
-                >
-                  <Icon name="refresh" size={15} /> Process another file
-                </button>
-              </div>
-            </>
-          )}
-        </section>
-        <aside className="shipping-help">
-          <section>
-            <span className="tools-eyebrow">FROM UPLOAD TO DISPATCH</span>
-            <h2>
-              A little order.
-              <br />A lot less busywork.
-            </h2>
-            <ol>
-              <li>
-                <span>01</span>
-                <div>
-                  <h3>Upload your labels</h3>
-                  <p>
-                    Choose one original PDF containing your shipping labels.
-                  </p>
-                </div>
-              </li>
-              <li>
-                <span>02</span>
-                <div>
-                  <h3>We group by SKU</h3>
-                  <p>
-                    Labels for the same product are collected into their own
-                    PDF.
-                  </p>
-                </div>
-              </li>
-              <li>
-                <span>03</span>
-                <div>
-                  <h3>Download & get moving</h3>
-                  <p>Get a ZIP with your sorted PDFs, plus an order summary.</p>
-                </div>
-              </li>
-            </ol>
-          </section>
-          <div className="shipping-tip">
-            <Icon name="file" size={20} />
-            <div>
-              <strong>A quick heads-up</strong>
-              <p>
-                Use text-based labels with SKU and order numbers. Scanned images
-                and encrypted PDFs aren’t supported.
-              </p>
             </div>
-          </div>
-          <div className="shipping-private">
-            <Icon name="shield" size={18} />
-            <p>
-              Files are processed for your request and temporary uploads are
-              removed afterwards.
-            </p>
-          </div>
-        </aside>
-      </div>
+            {!file && (
+              <p className="shipping-hint" id="shipping-pdf-requirements">
+                Use an unlocked, text-based PDF with SKUs and order numbers.
+              </p>
+            )}
+            {loading ? (
+              <div className="shipping-progress">
+                <span className="shipping-spinner" aria-hidden="true" />
+                <p role="status">{phase}</p>
+                <button type="button" className="shipping-text-button" onClick={cancel}>Cancel</button>
+              </div>
+            ) : file && (
+              <div className="shipping-sort-row">
+                <button type="button" className="tools-primary-button" onClick={() => void processPdf()}>
+                  Sort labels <Icon name="arrow" size={17} />
+                </button>
+              </div>
+            )}
+          </>
+        )}
+      </section>
     </main>
   );
 }

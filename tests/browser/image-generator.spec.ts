@@ -3,7 +3,8 @@ import fs from "node:fs";
 import sharp from "../../../backend/node_modules/sharp";
 import JSZip from "jszip";
 const origin = "http://127.0.0.1:3100";
-const modes = ["charms", "charm-packs", "backgrounds", "enhance"];
+const root = "/tools/image-generator";
+const modes = ["covers", "charms", "charm-packs", "backgrounds", "enhance"];
 async function fixtures() {
   const product = await sharp({
     create: {
@@ -47,8 +48,7 @@ test("image studio is private and generates selected views inside the existing d
   test.setTimeout(150000);
   const errors: string[] = [];
   page.on("pageerror", (error) => errors.push(error.message));
-  for (const mode of modes) {
-    const route = "/tools/image-generator/" + mode;
+  for (const route of [root, ...modes.map((mode) => `${root}/${mode}`)]) {
     const response = await page.request.get(route, { maxRedirects: 0 });
     expect(response.status()).toBe(307);
     expect(decodeURIComponent(response.headers().location)).toBe(
@@ -117,7 +117,7 @@ test("image studio is private and generates selected views inside the existing d
       },
     });
   });
-  await page.goto("/tools/image-generator");
+  await page.goto(root);
   const studio = page.getByRole("region", {
     name: "Image Generator studio",
     exact: true,
@@ -129,10 +129,32 @@ test("image studio is private and generates selected views inside the existing d
     studio
       .getByRole("navigation", { name: "Image generator modes" })
       .getByRole("link"),
-  ).toHaveCount(5);
+  ).toHaveCount(6);
+  const cards = studio.locator(".image-tool-card");
+  await expect(cards).toHaveCount(5);
+  for (const [index, mode] of modes.entries()) {
+    await expect(cards.nth(index)).toHaveAttribute("href", `${root}/${mode}`);
+  }
+  fs.mkdirSync(".test-data/screenshots", { recursive: true });
+  await page.screenshot({ path: ".test-data/screenshots/image-studio-start-desktop.png", animations: "disabled" });
+  await page.setViewportSize({ width: 320, height: 844 });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await page.screenshot({ path: ".test-data/screenshots/image-studio-start-mobile.png", animations: "disabled" });
+  await studio.getByRole("combobox", { name: "Image tool", exact: true }).selectOption(`${root}/covers`);
+  await expect(page).toHaveURL(`${root}/covers`);
+  await expect(studio.getByRole("heading", { name: "Phone covers", exact: true })).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  const provider = studio.locator('input[type="radio"][value="gemini"]');
+  const aiSettings = studio.locator("summary").filter({ hasText: "AI settings" });
+  await expect(provider).toBeHidden();
+  await aiSettings.click();
+  await expect(provider).toBeVisible();
   await expect(
-    studio.locator('input[type="radio"][value="gemini"]'),
+    provider,
   ).toBeEnabled();
+  await aiSettings.click();
+  await expect(studio.getByRole("button", { name: "Generate 1 selected image", exact: true })).toBeDisabled();
   await studio
     .getByLabel("Upload phone-cover photo", { exact: true })
     .setInputFiles({
@@ -161,7 +183,6 @@ test("image studio is private and generates selected views inside the existing d
   expect((await downloadEvent).suggestedFilename()).toMatch(
     /^margyn-iphone-13/,
   );
-  fs.mkdirSync(".test-data/screenshots", { recursive: true });
   await page.screenshot({
     path: ".test-data/screenshots/image-studio-results-desktop.png",
     animations: "disabled",
@@ -190,7 +211,7 @@ test("image studio is private and generates selected views inside the existing d
     buffer: product,
   });
   await studio
-    .getByLabel("Generate only what you need", { exact: true })
+    .getByLabel("Image views", { exact: true })
     .selectOption("charm-only");
   await studio.locator(".charm-generate-card .generate-button").click();
   await expect(studio.locator(".result-card")).toHaveCount(1);
