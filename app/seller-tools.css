@@ -682,6 +682,12 @@ body:has(.tools-shell) {
   color: #8492ac;
 }
 /* Shipping labels */
+.shipping-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
 .shipping-tool {
   display: grid;
   gap: 20px;
@@ -690,6 +696,7 @@ body:has(.tools-shell) {
   min-width: 0;
   color: #172440;
 }
+
 .shipping-heading h1 {
   margin: 0;
   font-size: clamp(26px, 3vw, 34px);

@@ -1,0 +1,97 @@
+.seller-tool-tips {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-self: flex-start;
+  vertical-align: middle;
+}
+
+.tool-tip-line {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0 6px;
+}
+
+.seller-tool-tips > button.tool-tip-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 4px;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  background: transparent;
+  color: #33449c;
+  cursor: pointer;
+  font: 650 13px/1 system-ui, sans-serif;
+}
+
+.seller-tool-tips > button.tool-tip-trigger[aria-label="Tips"] {
+  padding-inline: 10px;
+  border-color: #dbe3f0;
+  background: white;
+}
+
+.seller-tool-tips > button.tool-tip-trigger:hover,
+.seller-tool-tips > button.tool-tip-trigger:focus-visible {
+  background: #edf1fa;
+}
+
+.seller-tool-tips > button.tool-tip-trigger:focus-visible {
+  outline: 2px solid #4054bd;
+  outline-offset: 2px;
+}
+
+.tool-tip-icon {
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #4054bd;
+  color: white;
+}
+
+.tool-tip-bubble[popover] {
+  position: fixed;
+  inset: 12px auto auto 12px;
+  box-sizing: border-box;
+  width: min(300px, calc(100vw - 24px));
+  max-width: none;
+  max-height: calc(100dvh - 36px);
+  margin: 0;
+  padding: 12px 14px;
+  border: 0;
+  border-radius: 10px;
+  background: #20263b;
+  color: #fff;
+  box-shadow: 0 8px 20px #151e3333;
+  font: 400 14px/1.5 system-ui, sans-serif;
+  text-align: left;
+  overflow: visible;
+  overflow-wrap: anywhere;
+}
+
+.tool-tip-bubble:not([data-placement])::before { display: none; }
+.tool-tip-bubble::before {
+  position: absolute;
+  left: var(--tip-arrow);
+  top: -5px;
+  width: 10px;
+  height: 10px;
+  transform: translateX(-50%) rotate(45deg);
+  border-radius: 2px;
+  background: inherit;
+  content: "";
+}
+.tool-tip-bubble[data-placement="above"]::before { top: auto; bottom: -5px; }
+.tool-tip-bubble[popover] p,
+.tool-tip-bubble[popover] ul {
+  margin: 0;
+  color: inherit;
+  font: inherit;
+}
+.tool-tip-bubble[popover] ul { padding: 0 0 0 17px; list-style: disc; }
+.tool-tip-bubble li + li { margin-top: 6px; }

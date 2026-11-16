@@ -1,4 +1,5 @@
 "use client";
+import ToolTips from "@/components/tool-tips";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Icon } from "./icons";
@@ -83,7 +84,10 @@ export default function LoginForm({ next }: { next: string }) {
       >
         {challenge ? (
           <>
-            <label htmlFor="otp">Verification code</label>
+            <div className="tool-tip-line">
+              <label htmlFor="otp">Verification code</label>
+              <ToolTips label="verification code" tips={["Enter the latest six-digit code. If it expires, choose Resend code. If the number is wrong, choose Change number."]} />
+            </div>
             <input
               className="otp-input"
               id="otp"
@@ -126,7 +130,10 @@ export default function LoginForm({ next }: { next: string }) {
           </>
         ) : (
           <>
-            <label htmlFor="phone">Mobile number</label>
+            <div className="tool-tip-line">
+              <label htmlFor="phone">Mobile number</label>
+              <ToolTips label="mobile number" tips={["Enter your 10-digit Indian mobile number. The +91 country code is already filled in."]} />
+            </div>
             <div className="phone-input">
               <span className="country-prefix">
                 <span className="india-flag" /> +91

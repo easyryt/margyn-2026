@@ -1,5 +1,6 @@
 "use client";
 /* eslint-disable @next/next/no-img-element */
+import ToolTips from "@/components/tool-tips";
 import Link from "next/link";
 import { useState } from "react";
 import type { Product } from "@/lib/types";
@@ -96,7 +97,10 @@ export default function ProductDetail({
               Prices exclude GST. Tax is included in the order summary.
             </p>
             <section className="purchase-panel">
-              <h2>Enter your quantity</h2>
+              <div className="tool-tip-line">
+                <h2>Enter your quantity</h2>
+                <ToolTips label="carton quantity" tips={["Enter how many cartons you need. Check the pieces per carton and the price tier for your quantity."]} />
+              </div>
               <p>Wholesale pricing adjusts to your carton quantity.</p>
               <div className="tier-heading">
                 <strong>Pack size</strong>

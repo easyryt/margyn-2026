@@ -1,3 +1,4 @@
+import ToolTips from "@/components/tool-tips";
 import Link from "next/link";
 import type { User } from "@/lib/types";
 import { SELLER_TOOLS, toolPath, type SellerTool } from "@/lib/seller-tools";
@@ -91,7 +92,10 @@ export function SellerToolsDashboard({ user }: { user: User }) {
       </section>
       <section className="tools-collection">
         <div className="tools-collection-heading">
-          <h2>Your tools</h2>
+          <div className="tool-tip-line">
+            <h2>Your tools</h2>
+            <ToolTips label="choosing a seller tool" tips={["Use Image Generator for product photos, Listing Tool for catalog entries, Inventory Admin for stock, and Shipping Labels to sort PDFs by SKU."]} />
+          </div>
           <span>A place for every part of your workday.</span>
         </div>
         <div className="tools-card-grid">

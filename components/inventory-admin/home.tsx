@@ -1,18 +1,20 @@
 import Link from "next/link";
 import { Suspense } from "react";
 import { Icon } from "@/components/icons";
-import { INVENTORY_OTHER_SECTIONS, INVENTORY_ROOT } from "@/lib/inventory-tool-routes";
+import { INVENTORY_OTHER_SECTIONS, INVENTORY_ROOT, INVENTORY_SCAN_PATH } from "@/lib/inventory-tool-routes";
 import { inventoryFetch } from "./server";
 
 const lowStockPath = "/inventory/low-stock";
 const actions = [
   { path: "/inventory", title: "Manage stock", description: "Find a model, check quantities, or add raw stock.", icon: "layers" },
+  { path: INVENTORY_SCAN_PATH, title: "Scan barcode", description: "Pack items with your camera and update stock as you go.", icon: "search" },
   { path: "/printing-jobs", title: "Print jobs", description: "Create a print job and track printed stock.", icon: "edit" },
   { path: "/purchase-orders", title: "Receive purchases", description: "Create purchase orders and confirm stock arrivals.", icon: "truck" },
 ];
 
 type LowStockItem = {
   _id: string;
+  productId?: string;
   productName?: string;
   designName?: string;
   designCode?: string;
@@ -39,18 +41,25 @@ async function LowStockPreview() {
 
   return (
     <ul className="inventory-stock-preview">
-      {items.map(item => (
-        <li key={item._id}>
-          <div>
-            <strong>{item.productName || "Unnamed product"}</strong>
-            <small>{item.designName || item.designCode || (item.type === "RAW" ? "Raw stock" : "Printed stock")}</small>
-          </div>
-          <div className="inventory-stock-quantity">
-            <strong>{item.quantity} in stock</strong>
-            <small>Minimum {item.minThreshold}</small>
-          </div>
-        </li>
-      ))}
+      {items.map(item => {
+        const href = item.productId && /^[a-f0-9]{24}$/i.test(item.productId)
+          ? `${INVENTORY_ROOT}/inventory/${item.productId}` : INVENTORY_ROOT + lowStockPath;
+        return (
+          <li key={item._id}>
+            <Link href={href}>
+              <span>
+                <strong>{item.productName || "Unnamed product"}</strong>
+                <small>{item.designName || item.designCode || (item.type === "RAW" ? "Raw stock" : "Printed stock")}</small>
+              </span>
+              <span className="inventory-stock-quantity">
+                <strong>{item.quantity} in stock</strong>
+                <small>Minimum {item.minThreshold}</small>
+              </span>
+              <Icon name="arrow" size={16} />
+            </Link>
+          </li>
+        );
+      })}
     </ul>
   );
 }
@@ -90,7 +99,7 @@ export default function InventoryHome() {
         <section className="inventory-home-panel" aria-labelledby="inventory-more-tools-heading">
           <header><h2 id="inventory-more-tools-heading">More inventory tools</h2></header>
           <ul className="inventory-more-links">
-            {INVENTORY_OTHER_SECTIONS.filter(section => section.path !== lowStockPath).map(section => (
+            {INVENTORY_OTHER_SECTIONS.filter(section => section.path !== lowStockPath && section.path !== INVENTORY_SCAN_PATH).map(section => (
               <li key={section.path}>
                 <Link href={INVENTORY_ROOT + section.path}>
                   <Icon name={section.icon} size={16} />{section.label}

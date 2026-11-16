@@ -1,5 +1,7 @@
 "use client";
 
+import ToolTips from "@/components/tool-tips";
+
 import Image from "next/image";
 import { ChangeEvent, DragEvent, useEffect, useRef, useState } from "react";
 import BackgroundBatchStudio, {
@@ -470,9 +472,10 @@ export default function Home() {
             >
               <legend>Image views</legend>
               <div className="template-selection-actions">
-                <span role="status">
-                  {activeTemplates.length} of 4 selected
-                </span>
+                <div className="tool-tip-line cover-views-help">
+                  <span role="status">{activeTemplates.length} of 4 selected</span>
+                  <ToolTips label="phone cover image views" tips={["Select the angles you want. If you only need one photo, leave just one view checked."]} />
+                </div>
                 <div>
                   <button
                     type="button"

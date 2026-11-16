@@ -1,5 +1,6 @@
 "use client";
 /* eslint-disable @next/next/no-img-element */
+import ToolTips from "@/components/tool-tips";
 import Link from "next/link";
 import { useState, useSyncExternalStore } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
@@ -382,7 +383,10 @@ export default function CategoryCatalog({
               <span />
               THE PACKAGING COLLECTION
             </span>
-            <h1>{workspace ? "Marketplace" : title}</h1>
+            <div className="tool-tip-line">
+              <h1>{workspace ? "Marketplace" : title}</h1>
+              <ToolTips label="shopping filters" tips={["Use filters to narrow products by size, price, or availability. On phones, open Filters to see the options.", "Select two to four products, then choose Compare to see them side by side."]} />
+            </div>
             <p>{workspace ? "Find your everyday essentials. Pack better, ship happier." : "Considered essentials. A better fit for every dispatch."}</p>
           </div>
           <div className="category-intro-meta">

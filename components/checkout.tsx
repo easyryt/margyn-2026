@@ -1,5 +1,6 @@
 "use client";
 /* eslint-disable @next/next/no-img-element */
+import ToolTips from "@/components/tool-tips";
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -120,7 +121,10 @@ export default function Checkout({
                     <span className="stock-label">
                       ✓ Signed in as {user.phone}
                     </span>
-                    <h1>Where should we send it?</h1>
+                    <div className="tool-tip-line">
+                      <h1>Where should we send it?</h1>
+                      <ToolTips label="shipping address" tips={["Choose a saved address or enter a new one. Include the correct PIN code and a phone number the delivery team can reach."]} />
+                    </div>
                     <p>Enter your shipping details to review your order.</p>
                   </div>
                   {!!savedAddresses.length && (
@@ -226,7 +230,10 @@ export default function Checkout({
                 <>
                   <div className="checkout-section-heading">
                     <p className="eyebrow">ONE LAST LOOK</p>
-                    <h1>Ready for your next dispatch?</h1>
+                    <div className="tool-tip-line">
+                      <h1>Ready for your next dispatch?</h1>
+                      <ToolTips label="submitting your order" tips={["Review the quantities and shipping address before sending the order request. The store will confirm the request and arrange payment."]} />
+                    </div>
                     <p>Review your details and submit your order request.</p>
                   </div>
                   <div className="shipping-review">

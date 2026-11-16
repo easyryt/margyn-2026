@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import "@/app/image-generator.css";
+import ToolTips from "@/components/tool-tips";
+import { imageTips } from "@/lib/seller-tool-tips";
 import {
   IMAGE_GENERATOR_MODES,
   IMAGE_GENERATOR_ROOT,
@@ -22,27 +24,30 @@ export default function ImageStudioFrame({
   return (
     <section className="image-studio" aria-label="Image Generator studio">
       <div className="dashboard-content">
-        <nav className="image-studio-nav" aria-label="Image generator modes">
-          {sections.map((item) => (
-            <Link
-              key={item.id}
-              href={item.path}
-              aria-current={item.id === mode ? "page" : undefined}
+        <div className="image-studio-toolbar">
+          <nav className="image-studio-nav" aria-label="Image generator modes">
+            {sections.map((item) => (
+              <Link
+                key={item.id}
+                href={item.path}
+                aria-current={item.id === mode ? "page" : undefined}
+              >
+                {item.label}
+              </Link>
+            ))}
+          </nav>
+          <label className="image-studio-mobile-nav">
+            Image tool
+            <select
+              aria-label="Image tool"
+              value={sections.find((item) => item.id === mode)?.path}
+              onChange={(event) => router.push(event.target.value)}
             >
-              {item.label}
-            </Link>
-          ))}
-        </nav>
-        <label className="image-studio-mobile-nav">
-          Image tool
-          <select
-            aria-label="Image tool"
-            value={sections.find((item) => item.id === mode)?.path}
-            onChange={(event) => router.push(event.target.value)}
-          >
-            {sections.map((item) => <option key={item.id} value={item.path}>{item.label}</option>)}
-          </select>
-        </label>
+              {sections.map((item) => <option key={item.id} value={item.path}>{item.label}</option>)}
+            </select>
+          </label>
+          <ToolTips key={mode} tips={imageTips[mode]} />
+        </div>
         {children}
       </div>
     </section>

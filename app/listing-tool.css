@@ -10,7 +10,7 @@
   --color-amber-400: #9c89c4; --color-amber-500: #8065b3; --color-amber-600: #6c519d; --color-amber-700: #594184;
   min-width: 0; width: 100%; color: #25314b; font-size: 14px;
 }
-.listing-toolbar { padding: 0 0 14px; border-bottom: 1px solid #e1e6ef; margin-bottom: 24px; }
+.listing-toolbar { display:flex; justify-content:space-between; align-items:flex-start; gap:8px; padding: 0 0 14px; border-bottom: 1px solid #e1e6ef; margin-bottom: 24px; }
 .listing-toolbar nav { display: flex; flex-wrap: wrap; gap: 6px; }
 .listing-toolbar nav a {
   display: inline-flex; align-items: center; gap: 8px; min-height: 44px;

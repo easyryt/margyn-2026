@@ -1,5 +1,6 @@
 "use client";
 /* eslint-disable @next/next/no-img-element */
+import ToolTips from "@/components/tool-tips";
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -260,11 +261,14 @@ export default function Storefront({ products }: { products: Product[] }) {
             <span className="landing-section-label">
               MEET YOUR NEW ESSENTIALS.
             </span>
-            <h2 id="catalog-title">
-              Your next dispatch
-              <br />
-              starts <em>right here.</em>
-            </h2>
+            <div className="tool-tip-line">
+              <h2 id="catalog-title">
+                Your next dispatch
+                <br />
+                starts <em>right here.</em>
+              </h2>
+              <ToolTips label="finding products" tips={["Search for an item by name or use the category filters. Open a product to check pack size and wholesale pricing."]} />
+            </div>
           </div>
           <p>
             A little of everything you need.

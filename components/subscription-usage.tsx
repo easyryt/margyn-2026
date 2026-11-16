@@ -1,4 +1,5 @@
 "use client";
+import ToolTips from "@/components/tool-tips";
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -84,7 +85,7 @@ export default function SubscriptionUsage({ compact = false }: { compact?: boole
   if (compact) return <Link href="/tools/subscription" className="tools-ai-status" title={error || "Your AI plan"}>{subscription?.canUseAi ? "AI available" : "Explore AI plans"}</Link>;
   if (!subscription) return <div className="subscription-user-card">{error ? <><p className="error" role="alert">{error}</p><button onClick={refresh} disabled={busy} className="button button-outline">Try again</button></> : <p role="status">Loading AI plans…</p>}</div>;
   return <div className="ai-plans-page">
-    <div className="ai-plans-heading"><div><p className="eyebrow">MORE POSSIBILITIES WITH AI</p><h1>Choose your AI plan</h1><p>Find the right plan for your creative work and everyday business.</p></div><button className="button button-outline" onClick={refresh} disabled={busy}>{busy ? "Please wait…" : "Refresh plans"}</button></div>
+    <div className="ai-plans-heading"><div><p className="eyebrow">MORE POSSIBILITIES WITH AI</p><div className="tool-tip-line"><h1>Choose your AI plan</h1><ToolTips label="AI plans" tips={["Compare the duration, image allowance, and storage before choosing a plan. Check Your current AI plan to see when your existing access ends."]} /></div><p>Find the right plan for your creative work and everyday business.</p></div><button className="button button-outline" onClick={refresh} disabled={busy}>{busy ? "Please wait…" : "Refresh plans"}</button></div>
     {error && <p className="error" role="alert">{error}</p>}
     {notice && <p className="ai-plan-notice" role="status">{notice}</p>}
     <section className="ai-current-plan" aria-label="Your current AI plan"><div><span>YOUR CURRENT PLAN</span><h2>{subscription.planName}</h2><p>{subscription.canUseAi ? "AI is ready to use" : subscription.requiresReview ? "AI access is awaiting review" : subscription.status === "active" ? "Choose a plan below to continue with AI" : `Your plan is ${subscription.status}`}</p></div><div><span className="ai-plan-status">{subscription.canUseAi ? "AI available" : "AI unavailable"}</span><p>{subscription.expiresAt ? "Valid until " + new Date(subscription.expiresAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric", timeZone: "Asia/Kolkata" }) : "Managed by your administrator"}</p></div>{subscription.offers.length > 0 && <ul className="ai-plan-features ai-current-offers">{subscription.offers.map((offer, i) => <li key={i}>{offer}</li>)}</ul>}</section>

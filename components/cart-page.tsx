@@ -1,5 +1,6 @@
 "use client";
 /* eslint-disable @next/next/no-img-element */
+import ToolTips from "@/components/tool-tips";
 import Link from "next/link";
 import { useState } from "react";
 import type { Cart, CartItem } from "@/lib/types";
@@ -222,7 +223,10 @@ export default function CartPage({ initialCart }: { initialCart: Cart }) {
                 void change({ type: "coupon", code });
               }}
             >
-              <label htmlFor="coupon">COUPON</label>
+              <div className="tool-tip-line">
+                <label htmlFor="coupon">COUPON</label>
+                <ToolTips label="coupons" tips={["Enter a coupon code and apply it before checkout. Check your order summary for the discount."]} />
+              </div>
               {cart.coupon ? (
                 <p className="applied-coupon">
                   {cart.coupon} applied

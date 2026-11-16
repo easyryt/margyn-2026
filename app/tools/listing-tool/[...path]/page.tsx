@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import ToolTips from "@/components/tool-tips";
 import { requireToolUser } from "@/lib/tool-auth";
 import { listingReturnPath, validListingSegments } from "@/lib/listing-tool-routes";
 import Products from "@/components/listing-tool/original/app/products/page";
@@ -26,8 +27,13 @@ export default async function ListingSection({ params, searchParams }: { params:
     if (path[0] === "import") return (
       <main className="listing-import-page">
         <header className="listing-home-heading">
-          <h1>Import Excel</h1>
-          <p>Add phone cover listings and design names from a spreadsheet.</p>
+          <div>
+            <div className="tool-tip-line">
+              <h1>Import Excel</h1>
+              <ToolTips label="Excel imports" tips={["Choose the sheet that contains your phone cover listings or design names. After importing, review any rows marked as skipped or failed."]} />
+            </div>
+            <p>Add phone cover listings and design names from a spreadsheet.</p>
+          </div>
         </header>
         <ProductImport />
       </main>

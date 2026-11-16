@@ -33,6 +33,19 @@ test("seller dashboard and all four internal tool pages require login and preser
     .click();
   await expect(page).toHaveURL(/\/login\?next=/);
   expect(new URL(page.url()).searchParams.get("next")).toBe("/tools");
+  await page.setViewportSize({ width: 320, height: 740 });
+  await page.getByRole("button", { name: "Help with mobile number" }).click();
+  const mobileTip = page.getByRole("region", { name: "mobile number", exact: true });
+  await expect(mobileTip).toBeVisible();
+  await expect(mobileTip).toContainText("10-digit");
+  fs.mkdirSync(".test-data/screenshots", { recursive: true });
+  await page.screenshot({ path: ".test-data/screenshots/mobile-tooltip-open.png", animations: "disabled" });
+  const bounds = await mobileTip.boundingBox();
+  expect(bounds!.x).toBeGreaterThanOrEqual(0);
+  expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(320);
+  await page.getByRole("heading", { name: "Welcome to Margyn." }).click();
+  await expect(mobileTip).toBeHidden();
+  await page.setViewportSize({ width: 1440, height: 1000 });
   await signIn(page, "9876543214");
   await expect(page).toHaveURL(/\/tools$/);
   await expect(
@@ -107,6 +120,13 @@ test("seller dashboard and all four internal tool pages require login and preser
       exact: true,
     });
     await expect(navigation.getByRole("link")).toHaveCount(4);
+    const tips = page.getByRole("button", { name: "Tips", exact: true });
+    const bubble = page.getByRole("region", { name: "Tips", exact: true });
+    await tips.focus();
+    await page.keyboard.press("Enter");
+    await expect(bubble).toBeVisible();
+    await page.keyboard.press("Escape");
+    await expect(bubble).toBeHidden();
     await expect(
       navigation.getByRole("link", { name, exact: true }),
     ).toHaveAttribute("aria-current", "page");

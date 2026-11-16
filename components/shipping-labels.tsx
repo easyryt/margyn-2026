@@ -8,6 +8,8 @@ import {
   type DragEvent,
 } from "react";
 import { Icon } from "./icons";
+import ToolTips from "./tool-tips";
+import { shippingTips } from "@/lib/seller-tool-tips";
 const MAX_FILE_SIZE = 1024 * 1024 * 1024;
 type Stats = { orders: number; products: number; pages: number };
 function fileSize(bytes: number) {
@@ -191,8 +193,11 @@ export default function ShippingLabels() {
   return (
     <main className="shipping-tool">
       <header className="shipping-heading">
-        <h1>Shipping Labels</h1>
-        <p>Sort a shipping-label PDF by SKU and download the grouped files.</p>
+        <div>
+          <h1>Shipping Labels</h1>
+          <p>Sort a shipping-label PDF by SKU and download the grouped files.</p>
+        </div>
+        <ToolTips tips={shippingTips} />
       </header>
 
       <section className="shipping-panel" aria-label="Shipping-label PDF sorter">
@@ -314,9 +319,10 @@ export default function ShippingLabels() {
               )}
             </div>
             {!file && (
-              <p className="shipping-hint" id="shipping-pdf-requirements">
-                Use an unlocked, text-based PDF with SKUs and order numbers.
-              </p>
+              <div className="tool-tip-line">
+                <p className="shipping-hint" id="shipping-pdf-requirements">Use an unlocked, text-based PDF with SKUs and order numbers.</p>
+                <ToolTips label="PDF requirements" tips={["Try selecting a SKU with your cursor. If the characters cannot be selected, export the original label PDF from your shipping platform."]} />
+              </div>
             )}
             {loading ? (
               <div className="shipping-progress">

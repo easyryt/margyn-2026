@@ -1,5 +1,7 @@
 "use client";
 
+import ToolTips from "@/components/tool-tips";
+
 import { useEffect, useId, useState } from "react";
 import {
   initialProvider,
@@ -127,6 +129,7 @@ export default function AiProviderSelector({
         </summary>
         <fieldset className="ai-provider-selector" disabled={disabled || selection.loading}>
           <legend>AI provider</legend>
+          <ToolTips label="AI provider and quality" tips={["Choose an available provider. Review the selected model and its credit use before you generate or retry a view."]} />
           <div className="ai-provider-options">
             {selection.options.map((option) => (
               <label

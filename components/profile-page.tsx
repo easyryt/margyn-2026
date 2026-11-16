@@ -1,4 +1,5 @@
 "use client";
+import ToolTips from "@/components/tool-tips";
 import Link from "next/link";
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
@@ -304,9 +305,10 @@ export default function ProfilePage({
                     <Icon name="truck" size={21} />
                   </span>
                   <div>
-                    <h2 id="address-book-title">
-                      Address book <small>{profile.addresses.length}</small>
-                    </h2>
+                    <div className="tool-tip-line">
+                      <h2 id="address-book-title">Address book <small>{profile.addresses.length}</small></h2>
+                      <ToolTips label="saved addresses" tips={["Save the places you ship to often. Set your usual address as the default so it’s selected at checkout."]} />
+                    </div>
                     <p>Your saved places, for a smoother checkout.</p>
                   </div>
                 </div>

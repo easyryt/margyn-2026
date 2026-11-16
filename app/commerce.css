@@ -836,15 +836,13 @@
   font-size: 10px !important;
   margin-top: 18px;
 }
-.coupon-form > label {
+.coupon-form .tool-tip-line > label {
   font-size: 10px;
   letter-spacing: 1.2px;
   color: #005d46;
   font-weight: 700;
-  display: block;
-  margin-bottom: 13px;
 }
-.coupon-form > div {
+.coupon-form > div:not(.tool-tip-line) {
   display: flex;
   gap: 10px;
 }

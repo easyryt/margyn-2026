@@ -2,7 +2,9 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Icon } from "@/components/icons";
+import ToolTips from "@/components/tool-tips";
 import { LISTING_ROOT, LISTING_TABS } from "@/lib/listing-tool-routes";
+import { listingTips } from "@/lib/seller-tool-tips";
 
 const SECTION_TABS: Partial<Record<string, string>> = {
   "create-product": "/products",
@@ -33,6 +35,7 @@ export default function ListingFrame({ children }: { children: React.ReactNode }
           );
         })}
       </nav>
+      <ToolTips key={section} tips={listingTips[section] ?? listingTips[""]} />
     </div>
     <div className="listing-page-content">{children}</div>
   </section>;

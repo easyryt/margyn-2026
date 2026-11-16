@@ -1,4 +1,5 @@
 "use client";
+import ToolTips from "./tool-tips";
 import { useEffect, useState, type FormEvent } from "react";
 import type { SubscriptionAccount, SubscriptionSettings, AdminPlanPurchase } from "@/lib/subscription-types";
 import Dialog from "./dialog";
@@ -108,7 +109,7 @@ export default function AdminSubscriptions() {
         <article className="stat-card"><span>Tokens used</span><strong>{format(accounts.reduce((sum, account) => sum + account.subscription.usedTokens, 0))}</strong><p>Across current account periods</p></article>
       </div>
       <section className="admin-table-section">
-        <div className="admin-table-title"><div><h2>User allowances</h2><p>Choose a plan or set a user’s AI, image and storage limits.</p></div><button className="text-button" onClick={refresh} disabled={busy}>{busy ? "Refreshing…" : "Refresh accounts"}</button></div>
+        <div className="admin-table-title"><div><div className="tool-tip-line"><h2>User allowances</h2><ToolTips label="user allowances" tips={["Search by phone number, then open the user’s allowance. Choose a plan to fill its defaults or enter a custom allowance."]} /></div><p>Choose a plan or set a user’s AI, image and storage limits.</p></div><button className="text-button" onClick={refresh} disabled={busy}>{busy ? "Refreshing…" : "Refresh accounts"}</button></div>
         <div className="admin-table-controls"><label className="search-field"><input type="search" aria-label="Search subscriptions" placeholder="Search by name, phone or plan…" value={query} onChange={event => setQuery(event.target.value)} /></label></div>
         <div className="table-scroll"><table className="subscription-accounts-table"><thead><tr><th>User</th><th>Subscription</th><th>Token usage</th><th>Expires</th><th>Actions</th></tr></thead><tbody>
           {shown.map(account => <tr key={account.id}>
@@ -122,7 +123,7 @@ export default function AdminSubscriptions() {
         <p className="subscription-help">Usage includes actual provider input and output tokens, including images, reviews and retries. A call already running can exceed the remaining allowance; further calls are blocked.</p>
       </section>
       <section className="admin-table-section">
-        <div className="admin-table-title"><div><h2>AI plans & pricing</h2><p>Set the price, duration and offers for each plan. Visible plans appear on the user AI plans page.</p></div></div>
+        <div className="admin-table-title"><div><div className="tool-tip-line"><h2>AI plans & pricing</h2><ToolTips label="publishing AI plans" tips={["Set the price, duration, and limits. Add each offer on a separate line, select Show this plan to users, then save."]} /></div><p>Set the price, duration and offers for each plan. Visible plans appear on the user AI plans page.</p></div></div>
         <form className="form-fields subscription-settings-form" onSubmit={saveSettings}>
           <fieldset disabled={busy}>
             <h3>Free account allowances</h3>

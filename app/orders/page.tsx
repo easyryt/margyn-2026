@@ -1,3 +1,4 @@
+import ToolTips from "@/components/tool-tips";
 import { currentUser, listOrders } from "@/lib/api";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -19,7 +20,10 @@ export default async function Orders() {
       <main className="commerce">
         <div className="shop-container customer-orders">
           <div className="cart-page-heading">
-            <h1>Your orders</h1>
+            <div className="tool-tip-line">
+              <h1>Your orders</h1>
+              <ToolTips label="finding an order" tips={["Open an order to see its status, items, and delivery address. Use its order number when contacting the store."]} />
+            </div>
             <p>Order requests and their latest status.</p>
           </div>
           {orders.length ? (

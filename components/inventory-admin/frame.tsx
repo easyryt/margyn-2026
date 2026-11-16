@@ -2,7 +2,9 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Icon } from "@/components/icons";
+import ToolTips from "@/components/tool-tips";
 import { INVENTORY_OTHER_SECTIONS, INVENTORY_PRIMARY_SECTIONS, INVENTORY_ROOT, INVENTORY_SECTIONS } from "@/lib/inventory-tool-routes";
+import { inventoryTips } from "@/lib/seller-tool-tips";
 
 export default function InventoryFrame({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -11,6 +13,8 @@ export default function InventoryFrame({ children }: { children: React.ReactNode
   const active = INVENTORY_SECTIONS.find(section => section.path === path)?.path
     ?? (path.startsWith("/inventory/") || path.startsWith("/barcodes/") ? "/inventory" : "");
   const moreActive = INVENTORY_OTHER_SECTIONS.some(section => section.path === active);
+  const tipsKey = path === "/inventory/low-stock" ? "low-stock"
+    : path.startsWith("/inventory/") ? "detail" : path.split("/")[1] ?? "";
   const open = (section: string) => router.push(INVENTORY_ROOT + section);
 
   return (
@@ -36,6 +40,7 @@ export default function InventoryFrame({ children }: { children: React.ReactNode
             </optgroup>
           </select>
         </label>
+        <ToolTips key={tipsKey} tips={inventoryTips[tipsKey] ?? inventoryTips[""]} />
       </div>
       <div className="inventory-page-content">{children}</div>
     </section>

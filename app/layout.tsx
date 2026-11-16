@@ -7,6 +7,7 @@ import "./category.css";
 import "./profile.css";
 import "./address.css";
 import "./subscriptions.css";
+import "./tool-tips.css";
 import { getAnnouncement } from "@/lib/api";
 import AnnouncementBanner from "@/components/announcement-banner";
 export const dynamic = "force-dynamic";

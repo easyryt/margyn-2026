@@ -1,4 +1,5 @@
 export const INVENTORY_ROOT = "/tools/inventory-admin";
+export const INVENTORY_SCAN_PATH = "/scan-barcode";
 export const INVENTORY_PRIMARY_SECTIONS = [
   { path: "", label: "Start", icon: "grid" },
   { path: "/inventory", label: "Inventory", icon: "layers" },
@@ -6,6 +7,7 @@ export const INVENTORY_PRIMARY_SECTIONS = [
   { path: "/purchase-orders", label: "Purchases", icon: "truck" },
 ] as const;
 export const INVENTORY_OTHER_SECTIONS = [
+  { path: INVENTORY_SCAN_PATH, label: "Scan barcode", icon: "search" },
   { path: "/inventory/low-stock", label: "Low stock", icon: "layers" },
   { path: "/barcode-report", label: "Packed items", icon: "box" },
   { path: "/products", label: "Products", icon: "box" },

@@ -137,7 +137,8 @@
 .login-form form {
   margin-top: 32px;
 }
-.login-form form > label {
+.login-form form > label,
+.login-form .tool-tip-line > label {
   display: block;
   font-size: 11px;
   font-weight: 600;

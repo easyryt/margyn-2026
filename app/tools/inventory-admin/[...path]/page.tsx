@@ -1,7 +1,8 @@
 import { notFound } from "next/navigation";
 import { requireToolUser } from "@/lib/tool-auth";
 import { validInventorySegments, inventoryReturnPath } from "@/lib/inventory-tool-routes";
-import Inventory from "@/components/inventory-admin/original/inventory/page";
+import InventoryStock from "@/components/inventory-admin/stock";
+import BarcodeScanner from "@/components/inventory-admin/barcode-scanner";
 import Detail from "@/components/inventory-admin/original/inventory/[productId]/page";
 import LowStock from "@/components/inventory-admin/original/inventory/low-stock/page";
 import Categories from "@/components/inventory-admin/original/categories/page";
@@ -20,14 +21,19 @@ export default async function InventorySection({ params, searchParams }: { param
   let path: string[];
   try { path = rawPath.map(decodeURIComponent); } catch { notFound(); }
   if (!validInventorySegments(path)) notFound();
-  await requireToolUser(inventoryReturnPath(path, await searchParams));
+  const query = await searchParams;
+  await requireToolUser(inventoryReturnPath(path, query));
   if (path.length === 2) {
     if (path[1] === "low-stock") return <LowStock />;
     const props = { params: Promise.resolve({ productId: path[1] }) };
     return path[0] === "barcodes" ? <Barcodes {...props} /> : <Detail {...props} />;
   }
   switch (path[0]) {
-    case "inventory": return <Inventory />;
+    case "scan-barcode": return <BarcodeScanner />;
+    case "inventory": {
+      const productId = typeof query.product === "string" && /^[a-f0-9]{24}$/i.test(query.product) ? query.product.toLowerCase() : undefined;
+      return <InventoryStock key={productId} productId={productId} />;
+    }
     case "categories": return <Categories />;
     case "products": return <Products />;
     case "product-designs": return <Designs />;

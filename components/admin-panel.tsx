@@ -1,5 +1,6 @@
 "use client";
 /* eslint-disable @next/next/no-img-element */
+import ToolTips from "./tool-tips";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState, useSyncExternalStore } from "react";
@@ -19,6 +20,17 @@ import AdminAnnouncement from "./admin-announcement";
 import AdminPromoBanner from "./admin-promo-banner";
 import { money } from "./storefront";
 const subscribeToHydration = () => () => {};
+const adminTips: Record<string, readonly string[]> = {
+  overview: ["Open Products to update your catalog, or Orders to review incoming requests."],
+  products: ["Set the pack size before adding price tiers. Check the stock quantity and product visibility before saving."],
+  orders: ["Open an order request to review its quantities and address before you update the status."],
+  coupons: ["Set the discount, minimum order amount, and expiration. Enable the coupon when it’s ready to use."],
+  customers: ["Search by phone number to find a customer. Use Tokens & subscriptions to manage AI access."],
+  subscriptions: ["Use User allowances to change one account. Use AI plans & pricing to set offers and limits for a plan customers can choose."],
+  banner: ["Preview the message and link before saving. Turn visibility on when the announcement is ready."],
+  promo: ["Preview the banner and check its destination before showing it on the storefront."],
+};
+
 export default function AdminPanel({
   user,
   initialProducts,
@@ -259,7 +271,10 @@ export default function AdminPanel({
           <div className="admin-heading">
             <div>
               <p className="eyebrow">YOUR BUSINESS, AT A GLANCE</p>
-              <h1>{headings[tab][0]}</h1>
+              <div className="tool-tip-line">
+                <h1>{headings[tab][0]}</h1>
+                <ToolTips key={tab} label={headings[tab][0]} tips={adminTips[tab] ?? adminTips.overview} />
+              </div>
               <p>{headings[tab][1]}</p>
             </div>
             {tab !== "subscriptions" && <button

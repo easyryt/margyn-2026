@@ -29,10 +29,12 @@ test("inventory start page shows stock actions and low stock on desktop and mobi
   const actions = page.getByRole("region", { name: "Quick actions" });
   const lowStock = page.getByRole("region", { name: "Low-stock items" });
   await expect(actions.getByRole("link", { name: /^Manage stock/ })).toHaveAttribute("href", root + "/inventory");
+  await expect(actions.getByRole("link", { name: /^Scan barcode/ })).toHaveAttribute("href", root + "/scan-barcode");
   await expect(actions.getByRole("link", { name: /^Print jobs/ })).toHaveAttribute("href", root + "/printing-jobs");
   await expect(actions.getByRole("link", { name: /^Receive purchases/ })).toHaveAttribute("href", root + "/purchase-orders");
   await expect(lowStock.getByText("iPhone 16 Clear Case", { exact: true })).toBeVisible();
   await expect(lowStock.getByText("2 in stock", { exact: true })).toBeVisible();
+  await expect(lowStock.getByRole("link", { name: /iPhone 16 Clear Case/ })).toHaveAttribute("href", `${root}/inventory/${product._id}`);
   await expect(lowStock.getByRole("link", { name: "View low stock" })).toHaveAttribute("href", root + "/inventory/low-stock");
   await page.screenshot({ path: ".test-data/screenshots/inventory-start-desktop.png", fullPage: true, animations: "disabled" });
 
@@ -62,7 +64,17 @@ test("inventory workflows use the existing seller shell, save stock, create desi
  const categoryResponse=page.waitForResponse(r=>r.url().endsWith(api+"/categories")&&r.request().method()==="POST");await page.getByRole("button",{name:"Create category",exact:true}).click();const category=(await(await categoryResponse).json()).category;await expect(page.getByRole("cell",{name:"Mobile Covers",exact:true})).toBeVisible();await page.locator(".tools-desktop-sidebar").evaluate(el=>(el as HTMLElement).dataset.persisted="inventory-sidebar");
  await more.selectOption("/products");await expect(page.getByRole("heading",{name:"Products",exact:true})).toBeVisible();await page.getByRole("button",{name:"New product",exact:true}).click();await page.locator("form select").first().selectOption(category._id);await page.getByPlaceholder("e.g. iPhone 16 Cover").fill("Apple iPhone 13");
  const productResponse=page.waitForResponse(r=>r.url().endsWith(api+"/products")&&r.request().method()==="POST");await page.getByRole("button",{name:"Create product",exact:true}).click();const product=(await(await productResponse).json()).product;await expect(page.getByRole("cell",{name:"Apple iPhone 13",exact:true})).toBeVisible();
- await nav.getByRole("link",{name:"Inventory",exact:true}).click();await expect(page.getByRole("heading",{name:"Inventory Admin",exact:true})).toBeVisible();await page.getByPlaceholder("Quantity",{exact:true}).fill("100");await page.getByRole("button",{name:"Add RAW",exact:true}).click();await expect.poll(async()=> (await(await context.request.get(api+"/dashboard/inventory-products")).json())[0].rawQuantity).toBe(100);
+ await nav.getByRole("link",{name:"Inventory",exact:true}).click();await expect(page.getByRole("heading",{name:"Inventory Admin",exact:true})).toBeVisible();
+ const model = page.getByRole("article").filter({ has: page.getByRole("heading", { name: "Apple iPhone 13", exact: true }) });
+ await expect(model.getByRole("spinbutton")).toHaveCount(0);
+ await page.getByRole("searchbox", { name: "Find a model" }).fill("Mobile Covers");
+ await model.getByRole("button", { name: "Add stock", exact: true }).click();
+ const quantity = model.getByRole("spinbutton", { name: "Raw units to add for Apple iPhone 13" });
+ await expect(quantity).toBeFocused();
+ await quantity.fill("100");
+ await model.getByRole("button", { name: "Add raw stock", exact: true }).click();
+ await expect(model.getByRole("status")).toHaveText("100 raw units added.");
+ await expect.poll(async()=> (await(await context.request.get(api+"/dashboard/inventory-products")).json())[0].rawQuantity).toBe(100);
  await expect(page.getByText("100",{exact:true}).first()).toBeVisible();
  fs.mkdirSync(".test-data/screenshots",{recursive:true});await page.screenshot({path:".test-data/screenshots/inventory-models-desktop.png",fullPage:true,animations:"disabled"});
  await more.selectOption("/product-designs");await expect(page.getByRole("heading",{name:"1. Select category and product",exact:true})).toBeVisible();await page.locator(".inventory-page-content select").first().selectOption(category._id);await page.getByPlaceholder("Type product name or SKU...").fill("iPhone");await page.getByRole("button",{name:/Apple iPhone 13.*Category/}).click();
@@ -71,8 +83,102 @@ test("inventory workflows use the existing seller shell, save stock, create desi
  await nav.getByRole("link",{name:"Print jobs",exact:true}).click();await expect(page.getByRole("heading",{name:"Add Stocks",exact:true})).toBeVisible();const form=page.locator(".inventory-page-content form").first();await form.getByRole("button",{name:"Select category",exact:true}).click();await form.getByRole("button",{name:"Mobile Covers",exact:true}).click();await form.getByRole("button",{name:"Select product",exact:true}).click();await form.getByRole("button",{name:/Apple iPhone 13/}).click();await form.getByRole("button",{name:"Select model/design",exact:true}).click();await form.getByRole("button",{name:/Floral Garden/}).click();await form.getByPlaceholder("Enter quantity").fill("10");await form.locator("select").selectOption("COMPLETED");
  const printResponse=page.waitForResponse(r=>r.url().endsWith(api+"/printing-jobs")&&r.request().method()==="POST");await form.getByRole("button",{name:"Add Product to Stock",exact:true}).click();expect((await printResponse).status()).toBe(201);await expect(page.getByRole("button",{name:"Generate Barcode",exact:true})).toBeVisible();await page.getByRole("button",{name:"Generate Barcode",exact:true}).click();await expect(page.getByRole("button",{name:"Generated",exact:true})).toBeVisible();
  const dashboard=await(await context.request.get(api+"/dashboard/inventory-products")).json();expect(dashboard[0].rawQuantity).toBe(90);expect(dashboard[0].printedQuantity).toBe(10);
- const popupEvent=page.waitForEvent("popup");await page.getByRole("button",{name:"Print All",exact:true}).click();const popup=await popupEvent;await popup.waitForLoadState("domcontentloaded");await expect(popup.locator("svg")).toHaveCount(10);await popup.close();
- await nav.getByRole("link",{name:"Purchases",exact:true}).click();await expect(page.getByRole("heading",{name:"Purchase orders",exact:true})).toBeVisible();await page.getByPlaceholder("e.g. Sadar Bazar Vendor").fill("Fixture supplier");await page.locator(".inventory-page-content select").first().selectOption(product._id);await page.getByPlaceholder("e.g. 100",{exact:true}).fill("20");await page.getByRole("button",{name:"Add product",exact:true}).click();await page.getByRole("button",{name:"Create purchase order",exact:true}).click();await expect(page.getByRole("button",{name:"Verify",exact:true})).toBeVisible();await page.getByRole("button",{name:"Verify",exact:true}).click();const verify=page.locator('.fixed').filter({has:page.getByRole("button",{name:"Close verification",exact:true})}).last();await verify.locator('input[type="number"]').fill("18");await verify.getByRole("button",{name:/Verify|Confirm/}).click();await expect.poll(async()=> (await(await context.request.get(api+"/dashboard/inventory-products")).json())[0].rawQuantity).toBe(108);
+ const popupEvent=page.waitForEvent("popup");await page.getByRole("button",{name:"Print All",exact:true}).click();const popup=await popupEvent;await popup.waitForLoadState("domcontentloaded");await expect(popup.locator("svg")).toHaveCount(10);
+ const labelSvgs = await popup.locator(".qr svg").evaluateAll(elements => elements.slice(0, 2).map(element => new XMLSerializer().serializeToString(element)));
+ const labelCode = await popup.locator(".label code").first().innerText();
+ const nextLabelCode = await popup.locator(".label code").nth(1).innerText();
+ await popup.close();
+
+ // Feed the app's own printed QR label through a simulated camera stream.
+ await page.evaluate((labels) => {
+   let permissionDenied = true;
+   navigator.mediaDevices.getUserMedia = async (constraints) => {
+     const settings = constraints?.video as MediaTrackConstraints | undefined;
+     if (JSON.stringify(settings?.facingMode) !== JSON.stringify({ ideal: "user" }) || constraints?.audio !== false) {
+       throw new Error("Expected the front camera without audio");
+     }
+     if (permissionDenied) {
+       permissionDenied = false;
+       throw new DOMException("Camera denied", "NotAllowedError");
+     }
+     const canvas = document.createElement("canvas");
+     canvas.width = 480;
+     canvas.height = 360;
+     const images = await Promise.all(labels.map(async svg => {
+       const image = new Image();
+       image.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+       await image.decode();
+       return image;
+     }));
+     const context = canvas.getContext("2d")!;
+     const stream = canvas.captureStream(12);
+     const paint = () => {
+       context.fillStyle = "white";
+       context.fillRect(0, 0, canvas.width, canvas.height);
+       const label = document.documentElement.dataset.inventoryTestNextLabel ? 1 : 0;
+       context.drawImage(images[label], 120, 60, 240, 240);
+     };
+     paint();
+     const timer = window.setInterval(() => {
+       if (stream.getVideoTracks()[0].readyState === "ended") window.clearInterval(timer);
+       else paint();
+     }, 85);
+     return stream;
+   };
+ }, labelSvgs);
+ await more.selectOption("/scan-barcode");
+ const scanner = page.getByRole("region", { name: "Scan barcode", exact: true });
+ const startCamera = scanner.getByRole("button", { name: "Start camera" });
+ const manualCode = scanner.getByRole("textbox", { name: "Enter barcode manually" });
+ await startCamera.click();
+ await expect(scanner.getByRole("alert")).toContainText("Camera access was blocked");
+ await manualCode.fill("UNKNOWN-BARCODE");
+ await scanner.getByRole("button", { name: "Pack item" }).click();
+ await expect(scanner.getByText("No product matches this code.", { exact: false })).toBeVisible();
+
+ await startCamera.click();
+ const scannedProduct = scanner.getByRole("region", { name: "Scanned product" });
+ const printedStock = scannedProduct.locator("dl > div").filter({ hasText: "Printed stock" });
+ const totalLabels = scannedProduct.locator("dl > div").filter({ hasText: "Total labels" });
+ const availableLabels = scannedProduct.locator("dl > div").filter({ hasText: "Available labels" });
+ await expect(scanner.getByText("Packed · 1 printed unit deducted")).toBeVisible();
+ await expect(scannedProduct.getByRole("heading", { name: "Apple iPhone 13" })).toBeVisible();
+ await expect(scannedProduct.getByText("SKU: IP13-FLORAL")).toBeVisible();
+ await expect(printedStock.locator("dd")).toHaveText("9");
+ await expect(totalLabels.locator("dd")).toHaveText("10");
+ await expect(availableLabels.locator("dd")).toHaveText("9");
+ await expect(manualCode).toHaveValue(labelCode);
+ await expect(page).toHaveURL(root + "/scan-barcode");
+
+ // An already packed label cannot deduct stock again.
+ await scanner.getByRole("button", { name: "Pack item" }).click();
+ await expect(scanner.getByText("Already packed", { exact: true })).toBeVisible();
+ await expect(printedStock.locator("dd")).toHaveText("9");
+ await expect(availableLabels.locator("dd")).toHaveText("9");
+
+ // Opening the raw stock form pauses decoding until the quantity is saved.
+ await scannedProduct.getByText("Add raw stock", { exact: true }).click();
+ await page.evaluate(() => { document.documentElement.dataset.inventoryTestNextLabel = "true"; });
+ await expect(manualCode).toHaveValue(labelCode);
+ await scannedProduct.getByRole("spinbutton", { name: "Raw units to add" }).fill("7");
+ const restockRequest = page.waitForResponse(response => response.url().endsWith("/inventory/raw") && response.request().method() === "POST");
+ await scannedProduct.getByRole("button", { name: "Add units" }).click();
+ const restock = await restockRequest;
+ expect(restock.status()).toBe(201);
+ expect((await restock.json()).inventory.quantity).toBe(97);
+
+ // The next label is read without restarting the camera.
+ await expect(manualCode).toHaveValue(nextLabelCode);
+ await expect(scanner.getByText("Packed · 1 printed unit deducted")).toBeVisible();
+ await expect(printedStock.locator("dd")).toHaveText("8");
+ await expect(totalLabels.locator("dd")).toHaveText("10");
+ await expect(availableLabels.locator("dd")).toHaveText("8");
+ await scanner.getByRole("button", { name: "Stop camera" }).click();
+ expect(await scanner.locator("video").evaluate(element => element.srcObject)).toBeNull();
+ await page.setViewportSize({ width: 320, height: 844 });
+ expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+ await page.setViewportSize({ width: 1440, height: 1000 });
+ await nav.getByRole("link",{name:"Purchases",exact:true}).click();await expect(page.getByRole("heading",{name:"Purchase orders",exact:true})).toBeVisible();await page.getByPlaceholder("e.g. Sadar Bazar Vendor").fill("Fixture supplier");await page.locator(".inventory-page-content select").first().selectOption(product._id);await page.getByPlaceholder("e.g. 100",{exact:true}).fill("20");await page.getByRole("button",{name:"Add product",exact:true}).click();await page.getByRole("button",{name:"Create purchase order",exact:true}).click();await expect(page.getByRole("button",{name:"Verify",exact:true})).toBeVisible();await page.getByRole("button",{name:"Verify",exact:true}).click();const verify=page.locator('.fixed').filter({has:page.getByRole("button",{name:"Close verification",exact:true})}).last();await verify.locator('input[type="number"]').fill("18");await verify.getByRole("button",{name:/Verify|Confirm/}).click();await expect.poll(async()=> (await(await context.request.get(api+"/dashboard/inventory-products")).json())[0].rawQuantity).toBe(115);
  await expect(page.locator(".tools-desktop-sidebar")).toHaveAttribute("data-persisted","inventory-sidebar");
  await nav.getByRole("link",{name:"Inventory",exact:true}).click();await page.getByRole("link",{name:"View details",exact:true}).first().click();await expect(page).toHaveURL(new RegExp(root+"/inventory/"+product._id));await expect(page.getByRole("heading",{name:"Apple iPhone 13",exact:true})).toBeVisible();
  await page.goto(root+"/barcodes/"+product._id);await expect(page.getByRole("heading",{name:"Manage Barcodes",exact:true})).toBeVisible();await expect(page.locator(".inventory-page-content")).toContainText("FLORAL");

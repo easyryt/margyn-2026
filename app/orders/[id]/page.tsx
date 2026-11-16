@@ -1,3 +1,4 @@
+import ToolTips from "@/components/tool-tips";
 import { currentUser, getOrder } from "@/lib/api";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
@@ -33,7 +34,10 @@ export default async function OrderPage({
           <p>The store will confirm your request and arrange payment.</p>
           <div className="confirmation-grid">
             <section className="order-box">
-              <h2>Order details</h2>
+              <div className="tool-tip-line">
+                <h2>Order details</h2>
+                <ToolTips label="order status" tips={["The status tells you where your request is in the process. Keep the order number handy if you need to contact the store."]} />
+              </div>
               <dl className="summary-lines">
                 <div>
                   <dt>Status</dt>
